@@ -65,7 +65,7 @@ export default function TransactionList({
 
         {/* Filter Type Tabs & Date Inputs */}
         <div className="flex items-center justify-between gap-2">
-          {/* Type Buttons: Semua / Masuk / Keluar */}
+          {/* Type Buttons: Semua / Masuk (Hijau) / Keluar (Merah) */}
           <div className="flex bg-slate-200/70 p-0.5 rounded-lg text-[11px] font-semibold">
             <button
               onClick={() => setFilterType('ALL')}
@@ -110,7 +110,7 @@ export default function TransactionList({
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12 text-slate-400">
           <div className="w-7 h-7 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-          <p className="text-xs">Memuat catatan kas dari Supabase...</p>
+          <p className="text-xs">Memuat catatan kas...</p>
         </div>
       ) : transactions.length === 0 ? (
         <div className="bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300 mt-2">
@@ -120,30 +120,31 @@ export default function TransactionList({
       ) : (
         <div className="space-y-2.5">
           {transactions.map((tx) => {
-            const isIncome = tx.type === 'INCOME';
+            // FIX KRITIS: Mendukung format 'INCOME' maupun 'in' dari database
+            const isIncome = (tx.type === 'INCOME' || tx.type === 'in');
 
             return (
               <div 
                 key={tx.id}
                 className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
               >
-                {/* Accent bar on the left */}
+                {/* Garis Aksen Kiri: HIJAU untuk Pemasukan, MERAH untuk Pengeluaran */}
                 <div 
-                  className={`absolute left-0 top-0 bottom-0 w-1 ${isIncome ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                  className={`absolute left-0 top-0 bottom-0 w-1.5 ${isIncome ? 'bg-emerald-500' : 'bg-rose-500'}`}
                 />
 
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2.5">
-                    {/* Icon Masuk / Keluar */}
+                    {/* Ikon: Panah Hijau untuk Masuk, Panah Merah untuk Keluar */}
                     <div 
                       className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${
                         isIncome ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
                       }`}
                     >
-                      {isIncome ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
+                      {isIncome ? <ArrowDownLeft className="w-5 h-5 stroke-[2.5]" /> : <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />}
                     </div>
 
-                    {/* Transaction Details */}
+                    {/* Detail Transaksi */}
                     <div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="font-semibold text-xs text-slate-800">
@@ -166,7 +167,7 @@ export default function TransactionList({
                     </div>
                   </div>
 
-                  {/* Nominal & Actions */}
+                  {/* Nominal Transaksi: HIJAU (+) untuk Pemasukan, MERAH (-) untuk Pengeluaran */}
                   <div className="text-right flex-shrink-0">
                     <p className={`font-bold font-mono text-sm sm:text-base ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {isIncome ? '+' : '-'}{formatRupiah(tx.amount)}
@@ -210,7 +211,7 @@ export default function TransactionList({
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl animate-in fade-in">
             <div className="flex items-center justify-between p-3 border-b border-slate-100">
-              <span className="font-semibold text-xs text-slate-700">Bukti Struk / Nota (Supabase)</span>
+              <span className="font-semibold text-xs text-slate-700">Bukti Struk / Nota</span>
               <button 
                 onClick={() => setSelectedReceipt(null)}
                 className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"

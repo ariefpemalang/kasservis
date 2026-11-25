@@ -7,6 +7,7 @@ import TransactionList from './components/TransactionList';
 import TransactionModal from './components/TransactionModal';
 import UserManagementModal from './components/UserManagementModal';
 import ReportModal from './components/ReportModal';
+import CategoryManagementModal from './components/CategoryManagementModal';
 import BottomNav from './components/BottomNav';
 import SupabaseSetupModal from './components/SupabaseSetupModal';
 
@@ -31,6 +32,7 @@ export default function App() {
   const [editingTx, setEditingTx] = useState(null);
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -216,6 +218,7 @@ export default function App() {
           onOpenReport={() => setReportOpen(true)}
           onOpenUserMgmt={() => setUserMgmtOpen(true)}
           onOpenConfig={() => setConfigModalOpen(true)}
+          onOpenCategories={() => setCategoryModalOpen(true)}
         />
 
         <TransactionList
@@ -261,6 +264,11 @@ export default function App() {
           transactions={transactions}
           currentBook={currentBook}
           summary={summary}
+        />
+
+        <CategoryManagementModal
+          isOpen={categoryModalOpen}
+          onClose={() => setCategoryModalOpen(false)}
         />
 
         <SupabaseSetupModal

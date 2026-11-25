@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
+import { getStoredCategories } from '../utils/categories';
 import { 
   X, 
   ArrowDownLeft, 
@@ -11,38 +12,6 @@ import {
   Wrench, 
   User 
 } from 'lucide-react';
-
-const CATEGORIES = {
-  WIFI: [
-    'Iuran Bulanan WiFi',
-    'Voucheran Hotspot',
-    'Biaya Pasang Baru',
-    'Beli Bandwidth / Upstream',
-    'Kabel FO & Konektor',
-    'Router / Modem ONT',
-    'Operasional Lapangan',
-    'Lain-lain WiFi'
-  ],
-  SERVIS: [
-    'Ongkos Servis Laptop / PC',
-    'Ongkos Servis HP',
-    'Jual Sparepart / Aksesoris',
-    'Beli Sparepart',
-    'Alat Servis (Solder, Pasta)',
-    'Lain-lain Servis'
-  ],
-  PRIBADI: [
-    'Nabung',
-    'Makan & Minum',
-    'Laundry',
-    'Pulsa',
-    'Bocil / Keluarga',
-    'Infaq / Sedekah',
-    'Kebutuhan Pribadi',
-    'Belanja Bulanan',
-    'Lain-lain Pribadi'
-  ]
-};
 
 export default function TransactionModal({ 
   isOpen, 
@@ -179,7 +148,8 @@ export default function TransactionModal({
     }
   };
 
-  const activeCategories = CATEGORIES[book] || CATEGORIES.WIFI;
+  const allCategories = getStoredCategories();
+  const activeCategories = (allCategories[book] && allCategories[book][type]) || [];
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">

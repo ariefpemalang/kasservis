@@ -11,7 +11,8 @@ import {
   LogOut, 
   Users, 
   FileText,
-  Settings
+  Settings,
+  Tag
 } from 'lucide-react';
 
 export default function HeaderCard({ 
@@ -21,7 +22,8 @@ export default function HeaderCard({
   realtimeConnected,
   onOpenReport, 
   onOpenUserMgmt,
-  onOpenConfig
+  onOpenConfig,
+  onOpenCategories
 }) {
   const { profile, logout, isOwner } = useAuth();
 
@@ -104,6 +106,14 @@ export default function HeaderCard({
               </button>
             </>
           )}
+
+          <button
+            onClick={onOpenCategories}
+            title="Kelola Kategori"
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white/90 transition backdrop-blur-sm"
+          >
+            <Tag className="w-4 h-4" />
+          </button>
 
           <button
             onClick={onOpenConfig}
