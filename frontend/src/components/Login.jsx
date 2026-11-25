@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
+import SupabaseSetupModal from './SupabaseSetupModal';
 import { BookOpen, Lock, User, Wifi, Wrench, ShieldCheck, ArrowRight, Settings } from 'lucide-react';
 
-export default function Login({ onOpenConfig }) {
+export default function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,9 +73,11 @@ export default function Login({ onOpenConfig }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-600 via-teal-700 to-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
+      {/* Tombol Pengaturan Supabase */}
       <button
-        onClick={onOpenConfig}
-        className="absolute top-4 right-4 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition flex items-center gap-1.5 text-xs"
+        type="button"
+        onClick={() => setConfigOpen(true)}
+        className="absolute top-4 right-4 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition flex items-center gap-1.5 text-xs shadow-md cursor-pointer z-20"
         title="Pengaturan URL & Key Supabase"
       >
         <Settings className="w-4 h-4" />
@@ -133,7 +137,7 @@ export default function Login({ onOpenConfig }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2"
+            className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 mt-2 cursor-pointer"
           >
             {loading ? (
               <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
@@ -154,7 +158,7 @@ export default function Login({ onOpenConfig }) {
             <button
               type="button"
               onClick={() => setPreset('admin', 'admin123')}
-              className="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl flex flex-col items-center transition text-center"
+              className="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
             >
               <ShieldCheck className="w-5 h-5 text-emerald-600 mb-1" />
               <span className="text-[11px] font-bold text-slate-800">Owner</span>
@@ -164,7 +168,7 @@ export default function Login({ onOpenConfig }) {
             <button
               type="button"
               onClick={() => setPreset('kasir', 'kasir123')}
-              className="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl flex flex-col items-center transition text-center"
+              className="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
             >
               <Wifi className="w-5 h-5 text-blue-600 mb-1" />
               <span className="text-[11px] font-bold text-slate-800">Kasir</span>
@@ -174,7 +178,7 @@ export default function Login({ onOpenConfig }) {
             <button
               type="button"
               onClick={() => setPreset('teknisi', 'teknisi123')}
-              className="p-2.5 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl flex flex-col items-center transition text-center"
+              className="p-2.5 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
             >
               <Wrench className="w-5 h-5 text-amber-600 mb-1" />
               <span className="text-[11px] font-bold text-slate-800">Teknisi</span>
@@ -187,7 +191,7 @@ export default function Login({ onOpenConfig }) {
               type="button"
               onClick={handleAutoCreateDefaultAccounts}
               disabled={seeding}
-              className="text-[11px] text-emerald-600 hover:underline font-medium"
+              className="text-[11px] text-emerald-600 hover:underline font-medium cursor-pointer"
             >
               {seeding ? 'Membuat akun bawaan...' : 'Akun belum ada di Supabase? Buat Akun Bawaan Otomatis'}
             </button>
@@ -198,6 +202,12 @@ export default function Login({ onOpenConfig }) {
       <p className="text-[11px] text-emerald-100/70 mt-6 text-center">
         Buku Kas Realtime • Supabase Database
       </p>
+
+      {/* Modal Pengaturan Supabase */}
+      <SupabaseSetupModal
+        isOpen={configOpen}
+        onClose={() => setConfigOpen(false)}
+      />
     </div>
   );
 }
