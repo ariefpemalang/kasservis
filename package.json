@@ -1,0 +1,16 @@
+{
+  "name": "buku-wifi-dan-servis",
+  "version": "1.0.0",
+  "description": "Aplikasi Buku Kas Realtime WiFi, Servis, dan Pribadi",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && node src/server.js",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "db:push": "cd backend && npx prisma db push",
+    "seed": "cd backend && node src/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
