@@ -13,52 +13,33 @@ import {
 } from 'lucide-react';
 
 const CATEGORIES = {
-  WIFI: {
-    INCOME: [
-      'Iuran Bulanan WiFi',
-      'Voucheran Hotspot',
-      'Biaya Pasang Baru',
-      'Pemasukan Lain WiFi'
-    ],
-    EXPENSE: [
-      'Beli Bandwidth / Upstream',
-      'Kabel FO & Konektor',
-      'Router / Modem ONT',
-      'Operasional Lapangan',
-      'Listrik / Sewa Tiang',
-      'Pengeluaran Lain WiFi'
-    ]
-  },
-  SERVIS: {
-    INCOME: [
-      'Ongkos Servis Laptop / PC',
-      'Ongkos Servis HP',
-      'Jual Sparepart / Aksesoris',
-      'Instalasi Windows / Software',
-      'Pemasukan Lain Servis'
-    ],
-    EXPENSE: [
-      'Beli Sparepart (LCD, Baterai, dll)',
-      'Alat Servis (Solder, Pasta, Timah)',
-      'Ongkos Kirim Sparepart',
-      'Operasional Bengkel Servis',
-      'Pengeluaran Lain Servis'
-    ]
-  },
-  PRIBADI: {
-    INCOME: [
-      'Gaji / Bagi Hasil Usaha',
-      'Pendapatan Lain Pribadi',
-      'Investasi / Dividen'
-    ],
-    EXPENSE: [
-      'Kebutuhan Pribadi & Keluarga',
-      'Makan & Minum',
-      'Belanja Bulanan',
-      'Cicilan / Tagihan Pribadi',
-      'Pengeluaran Lain Pribadi'
-    ]
-  }
+  WIFI: [
+    'Iuran Bulanan WiFi',
+    'Voucheran Hotspot',
+    'Biaya Pasang Baru',
+    'Beli Bandwidth / Upstream',
+    'Kabel FO & Konektor',
+    'Router / Modem ONT',
+    'Operasional Lapangan',
+    'wifi'
+  ],
+  SERVIS: [
+    'Ongkos Servis Laptop / PC',
+    'Ongkos Servis HP',
+    'Jual Sparepart / Aksesoris',
+    'Beli Sparepart',
+    'Alat Servis (Solder, Pasta)'
+  ],
+  PRIBADI: [
+    'Nabung',
+    'Makan & Minum',
+    'Laundry',
+    'Pulsa',
+    'Bocil',
+    'Infaq',
+    'Kebutuhan Pribadi & Keluarga',
+    'Belanja Bulanan'
+  ]
 };
 
 export default function TransactionModal({ 
@@ -77,7 +58,7 @@ export default function TransactionModal({
   const [category, setCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [notes, setNotes] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 16));
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [receiptUrl, setReceiptUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -85,12 +66,12 @@ export default function TransactionModal({
 
   useEffect(() => {
     if (editingTx) {
-      setType(editingTx.type);
-      setBook(editingTx.book);
+      setType(editingTx.type === 'in' || editingTx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
+      setBook(editingTx.book || 'WIFI');
       setAmount(editingTx.amount.toString());
       setCategory(editingTx.category);
       setNotes(editingTx.notes || '');
-      setDate(new Date(editingTx.date).toISOString().slice(0, 16));
+      setDate(editingTx.date ? editingTx.date.slice(0, 10) : new Date().toISOString().slice(0, 10));
       setReceiptUrl(editingTx.receipt_url || '');
     } else {
       setType(initialType);
@@ -102,7 +83,7 @@ export default function TransactionModal({
       setCategory('');
       setCustomCategory('');
       setNotes('');
-      setDate(new Date().toISOString().slice(0, 16));
+      setDate(new Date().toISOString().slice(0, 10));
       setReceiptUrl('');
     }
     setError('');
@@ -110,7 +91,6 @@ export default function TransactionModal({
 
   if (!isOpen) return null;
 
-  // Upload ke Supabase Storage (Bucket 'receipts')
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !supabase) return;
@@ -121,20 +101,19 @@ export default function TransactionModal({
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
       const filePath = `receipts/${fileName}`;
 
-      const { data, error: uploadErr } = await supabase.storage
+      const { error: uploadErr } = await supabase.storage
         .from('receipts')
         .upload(filePath, file);
 
       if (uploadErr) throw uploadErr;
 
-      // Ambil Public URL
       const { data: { publicUrl } } = supabase.storage
         .from('receipts')
         .getPublicUrl(filePath);
 
       setReceiptUrl(publicUrl);
     } catch (err) {
-      alert('Gagal mengunggah foto struk: ' + err.message);
+      alert('Gagal mengunggah foto: ' + err.message);
     } finally {
       setUploading(false);
     }
@@ -158,16 +137,19 @@ export default function TransactionModal({
 
     setLoading(true);
     try {
+      const dbType = type === 'INCOME' ? 'in' : 'out';
+
       const payload = {
-        book,
-        type,
+        type: dbType,
         amount: numericAmount,
         category: finalCategory,
-        notes: notes.trim() || null,
-        date: new Date(date).toISOString(),
+        notes: notes.trim() || '',
+        date: date,
+        book: book,
+        payment_method: 'Tunai',
         receipt_url: receiptUrl || null,
         user_id: user?.id,
-        user_name: profile?.name || user?.email || 'User'
+        user_name: profile?.name || 'User'
       };
 
       if (editingTx) {
@@ -178,6 +160,7 @@ export default function TransactionModal({
 
         if (updateErr) throw updateErr;
       } else {
+        payload.id = `trx-${Date.now()}`;
         const { error: insertErr } = await supabase
           .from('transactions')
           .insert([payload]);
@@ -194,13 +177,11 @@ export default function TransactionModal({
     }
   };
 
-  const activeCategories = CATEGORIES[book]?.[type] || [];
+  const activeCategories = CATEGORIES[book] || CATEGORIES.WIFI;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom">
-        
-        {/* Header Modal */}
         <div className={`p-4 flex items-center justify-between text-white ${type === 'INCOME' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
           <div className="flex items-center gap-2">
             {type === 'INCOME' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
@@ -213,7 +194,6 @@ export default function TransactionModal({
           </button>
         </div>
 
-        {/* Content Form Scrollable */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
           {error && (
             <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
@@ -221,7 +201,6 @@ export default function TransactionModal({
             </div>
           )}
 
-          {/* Type Toggle: Pemasukan / Pengeluaran */}
           {!editingTx && (
             <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
               <button
@@ -247,7 +226,6 @@ export default function TransactionModal({
             </div>
           )}
 
-          {/* Book Selector (Khusus Owner, Kasir & Teknisi otomatis terkunci) */}
           {isOwner && !editingTx && (
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
@@ -288,7 +266,6 @@ export default function TransactionModal({
             </div>
           )}
 
-          {/* Nominal Input Besar */}
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Nominal (Rp)
@@ -312,7 +289,6 @@ export default function TransactionModal({
             </div>
           </div>
 
-          {/* Pilihan Kategori Cepat */}
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
               Kategori
@@ -349,7 +325,6 @@ export default function TransactionModal({
             />
           </div>
 
-          {/* Keterangan / Catatan */}
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
               Keterangan / Catatan
@@ -363,14 +338,13 @@ export default function TransactionModal({
             />
           </div>
 
-          {/* Tanggal & Upload Struk */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Waktu Transaksi
+                Tanggal Transaksi
               </label>
               <input
-                type="datetime-local"
+                type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -379,7 +353,7 @@ export default function TransactionModal({
 
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Foto Struk / Nota (Supabase Storage)
+                Foto Struk / Nota (Opsional)
               </label>
               <div className="flex items-center gap-2">
                 <label className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 transition">
@@ -413,7 +387,6 @@ export default function TransactionModal({
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading || uploading}
@@ -430,7 +403,6 @@ export default function TransactionModal({
             )}
           </button>
         </form>
-
       </div>
     </div>
   );

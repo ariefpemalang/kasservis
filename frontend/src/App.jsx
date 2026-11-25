@@ -13,32 +13,25 @@ import SupabaseSetupModal from './components/SupabaseSetupModal';
 export default function App() {
   const { user, profile, loading: authLoading, isOwner, isKasir, isTeknisi } = useAuth();
 
-  // Supabase Config Modal
   const [configModalOpen, setConfigModalOpen] = useState(!isSupabaseConfigured());
-
-  // Active book state
   const [currentBook, setCurrentBook] = useState('ALL');
 
-  // Filter states
   const [filterType, setFilterType] = useState('ALL'); // ALL, INCOME, EXPENSE
   const [search, setSearch] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // Data states
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const [realtimeConnected, setRealtimeConnected] = useState(false);
 
-  // Modal states
   const [txModalOpen, setTxModalOpen] = useState(false);
   const [modalType, setModalType] = useState('INCOME');
   const [editingTx, setEditingTx] = useState(null);
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
-  // Set default book based on user role upon login
   useEffect(() => {
     if (profile) {
       if (isKasir) setCurrentBook('WIFI');
@@ -47,7 +40,6 @@ export default function App() {
     }
   }, [profile, isKasir, isTeknisi, isOwner]);
 
-  // Fetch transactions and calculate summary directly from Supabase
   const fetchData = useCallback(async () => {
     if (!user || !supabase) return;
     setLoading(true);
@@ -58,7 +50,6 @@ export default function App() {
         .select('*')
         .order('date', { ascending: false });
 
-      // RBAC Filter
       if (isKasir) {
         query = query.eq('book', 'WIFI');
       } else if (isTeknisi) {
@@ -69,24 +60,20 @@ export default function App() {
         }
       }
 
-      // Filter Type
       if (filterType !== 'ALL') {
-        query = query.eq('type', filterType);
+        const typeFilter = filterType === 'INCOME' ? ['in', 'INCOME'] : ['out', 'EXPENSE'];
+        query = query.in('type', typeFilter);
       }
 
-      // Filter Search
       if (search) {
-        query = query.ilike('notes', `%${search}%`);
+        query = query.or(`notes.ilike.%${search}%,category.ilike.%${search}%`);
       }
 
-      // Filter Date
       if (startDate) {
-        query = query.gte('date', new Date(startDate).toISOString());
+        query = query.gte('date', startDate);
       }
       if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        query = query.lte('date', end.toISOString());
+        query = query.lte('date', endDate);
       }
 
       const { data, error } = await query;
@@ -94,17 +81,11 @@ export default function App() {
 
       setTransactions(data || []);
 
-      // Hitung Summary secara dinamis
-      // Ambil seluruh data transaksi (tanpa paginasi/search) untuk ringkasan akurat
-      let sumQuery = supabase.from('transactions').select('book, type, amount, date');
-      if (startDate) sumQuery = sumQuery.gte('date', new Date(startDate).toISOString());
-      if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-        sumQuery = sumQuery.lte('date', end.toISOString());
-      }
+      // Hitung ringkasan dinamis
+      const { data: allTx, error: sumErr } = await supabase
+        .from('transactions')
+        .select('book, type, amount, date');
 
-      const { data: allTx, error: sumErr } = await sumQuery;
       if (!sumErr && allTx) {
         const calc = {
           WIFI: { totalIncome: 0, totalExpense: 0, balance: 0 },
@@ -114,10 +95,14 @@ export default function App() {
 
         allTx.forEach((t) => {
           const amt = parseFloat(t.amount) || 0;
-          if (calc[t.book]) {
-            if (t.type === 'INCOME') calc[t.book].totalIncome += amt;
-            else if (t.type === 'EXPENSE') calc[t.book].totalExpense += amt;
-            calc[t.book].balance = calc[t.book].totalIncome - calc[t.book].totalExpense;
+          const targetBook = t.book || 'PRIBADI';
+          const isInc = t.type === 'INCOME' || t.type === 'in';
+          const isExp = t.type === 'EXPENSE' || t.type === 'out';
+
+          if (calc[targetBook]) {
+            if (isInc) calc[targetBook].totalIncome += amt;
+            else if (isExp) calc[targetBook].totalExpense += amt;
+            calc[targetBook].balance = calc[targetBook].totalIncome - calc[targetBook].totalExpense;
           }
         });
 
@@ -145,7 +130,6 @@ export default function App() {
     fetchData();
   }, [fetchData]);
 
-  // SUPABASE REALTIME SUBSCRIPTION
   useEffect(() => {
     if (!supabase || !user) return;
 
@@ -154,8 +138,7 @@ export default function App() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'transactions' },
-        (payload) => {
-          console.log('Realtime change detected in Supabase:', payload);
+        () => {
           fetchData();
         }
       )
@@ -168,7 +151,6 @@ export default function App() {
     };
   }, [user, fetchData]);
 
-  // Actions
   const handleAddIncome = () => {
     setEditingTx(null);
     setModalType('INCOME');
@@ -183,7 +165,7 @@ export default function App() {
 
   const handleEdit = (tx) => {
     setEditingTx(tx);
-    setModalType(tx.type);
+    setModalType(tx.type === 'in' || tx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
     setTxModalOpen(true);
   };
 
@@ -225,10 +207,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex justify-center">
-      {/* Mobile container - optimized for phone screens and responsive on desktop */}
       <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col">
-        
-        {/* Header Card with Realtime Balance */}
         <HeaderCard
           currentBook={currentBook}
           setCurrentBook={setCurrentBook}
@@ -239,7 +218,6 @@ export default function App() {
           onOpenConfig={() => setConfigModalOpen(true)}
         />
 
-        {/* Transaction List */}
         <TransactionList
           transactions={transactions}
           loading={loading}
@@ -255,7 +233,6 @@ export default function App() {
           setEndDate={setEndDate}
         />
 
-        {/* Bottom Floating Bar with [+] Pemasukan & [-] Pengeluaran */}
         <BottomNav
           currentBook={currentBook}
           setCurrentBook={setCurrentBook}
@@ -264,7 +241,6 @@ export default function App() {
           onOpenReport={() => setReportOpen(true)}
         />
 
-        {/* Modals */}
         <TransactionModal
           isOpen={txModalOpen}
           onClose={() => setTxModalOpen(false)}
@@ -291,7 +267,6 @@ export default function App() {
           isOpen={configModalOpen}
           onClose={() => setConfigModalOpen(false)}
         />
-
       </div>
     </div>
   );
