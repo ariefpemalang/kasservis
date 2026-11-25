@@ -21,24 +21,26 @@ const CATEGORIES = {
     'Kabel FO & Konektor',
     'Router / Modem ONT',
     'Operasional Lapangan',
-    'wifi'
+    'Lain-lain WiFi'
   ],
   SERVIS: [
     'Ongkos Servis Laptop / PC',
     'Ongkos Servis HP',
     'Jual Sparepart / Aksesoris',
     'Beli Sparepart',
-    'Alat Servis (Solder, Pasta)'
+    'Alat Servis (Solder, Pasta)',
+    'Lain-lain Servis'
   ],
   PRIBADI: [
     'Nabung',
     'Makan & Minum',
     'Laundry',
     'Pulsa',
-    'Bocil',
-    'Infaq',
-    'Kebutuhan Pribadi & Keluarga',
-    'Belanja Bulanan'
+    'Bocil / Keluarga',
+    'Infaq / Sedekah',
+    'Kebutuhan Pribadi',
+    'Belanja Bulanan',
+    'Lain-lain Pribadi'
   ]
 };
 
@@ -154,7 +156,7 @@ export default function TransactionModal({
 
       if (editingTx) {
         const { error: updateErr } = await supabase
-          .from('transactions')
+          .from('bukukas_transactions')
           .update(payload)
           .eq('id', editingTx.id);
 
@@ -162,7 +164,7 @@ export default function TransactionModal({
       } else {
         payload.id = `trx-${Date.now()}`;
         const { error: insertErr } = await supabase
-          .from('transactions')
+          .from('bukukas_transactions')
           .insert([payload]);
 
         if (insertErr) throw insertErr;

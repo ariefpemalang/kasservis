@@ -8,12 +8,12 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Ambil profil (role, nama) dari tabel profiles
+  // Ambil profil (role, nama) dari tabel bukukas_profiles
   const fetchProfile = async (userId) => {
     if (!supabase) return null;
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('bukukas_profiles')
         .select('*')
         .eq('id', userId)
         .single();

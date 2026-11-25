@@ -46,7 +46,7 @@ export default function App() {
 
     try {
       let query = supabase
-        .from('transactions')
+        .from('bukukas_transactions')
         .select('*')
         .order('date', { ascending: false });
 
@@ -81,9 +81,9 @@ export default function App() {
 
       setTransactions(data || []);
 
-      // Hitung ringkasan dinamis
+      // Hitung ringkasan dinamis dari tabel bukukas_transactions
       const { data: allTx, error: sumErr } = await supabase
-        .from('transactions')
+        .from('bukukas_transactions')
         .select('book, type, amount, date');
 
       if (!sumErr && allTx) {
@@ -120,7 +120,7 @@ export default function App() {
       }
 
     } catch (err) {
-      console.error('Error fetching data from Supabase:', err);
+      console.error('Error fetching data from Supabase bukukas_transactions:', err);
     } finally {
       setLoading(false);
     }
@@ -134,10 +134,10 @@ export default function App() {
     if (!supabase || !user) return;
 
     const channel = supabase
-      .channel('realtime:transactions')
+      .channel('realtime:bukukas_transactions')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'transactions' },
+        { event: '*', schema: 'public', table: 'bukukas_transactions' },
         () => {
           fetchData();
         }
@@ -173,7 +173,7 @@ export default function App() {
     if (!window.confirm('Hapus transaksi ini?')) return;
     try {
       const { error } = await supabase
-        .from('transactions')
+        .from('bukukas_transactions')
         .delete()
         .eq('id', txId);
 

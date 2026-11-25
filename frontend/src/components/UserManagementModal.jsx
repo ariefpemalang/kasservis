@@ -12,7 +12,6 @@ export default function UserManagementModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // Form create new user
   const [showAddForm, setShowAddForm] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -24,7 +23,7 @@ export default function UserManagementModal({ isOpen, onClose }) {
     setLoading(true);
     try {
       const { data, error: fetchErr } = await supabase
-        .from('profiles')
+        .from('bukukas_profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -63,7 +62,7 @@ export default function UserManagementModal({ isOpen, onClose }) {
       if (signUpErr) throw signUpErr;
 
       if (data?.user) {
-        await supabase.from('profiles').upsert({
+        await supabase.from('bukukas_profiles').upsert({
           id: data.user.id,
           username: username.toLowerCase().trim(),
           name,
@@ -85,7 +84,7 @@ export default function UserManagementModal({ isOpen, onClose }) {
     if (!window.confirm('Hapus profil akun ini?')) return;
     try {
       const { error: delErr } = await supabase
-        .from('profiles')
+        .from('bukukas_profiles')
         .delete()
         .eq('id', userId);
 
@@ -112,19 +111,16 @@ export default function UserManagementModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        
-        {/* Header */}
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-400" />
-            <span className="font-bold text-sm">Kelola Akun (Supabase Profiles)</span>
+            <span className="font-bold text-sm">Kelola Akun (Buku Kas Profiles)</span>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-4 overflow-y-auto space-y-4">
           {error && (
             <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
@@ -132,7 +128,6 @@ export default function UserManagementModal({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Tombol Buka Form Tambah */}
           {!showAddForm ? (
             <button
               onClick={() => setShowAddForm(true)}
@@ -212,7 +207,6 @@ export default function UserManagementModal({ isOpen, onClose }) {
             </form>
           )}
 
-          {/* List User */}
           <div className="space-y-2">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
               Daftar Pengguna ({users.length})
@@ -248,7 +242,6 @@ export default function UserManagementModal({ isOpen, onClose }) {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

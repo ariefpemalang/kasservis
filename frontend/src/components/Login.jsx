@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { isSupabaseConfigured, supabase } from '../supabaseClient';
+import { supabase } from '../supabaseClient';
 import { BookOpen, Lock, User, Wifi, Wrench, ShieldCheck, ArrowRight, Settings } from 'lucide-react';
 
 export default function Login({ onOpenConfig }) {
@@ -25,7 +25,6 @@ export default function Login({ onOpenConfig }) {
     }
   };
 
-  // Helper untuk membuat user default (admin, kasir, teknisi) otomatis jika baru pertama kali
   const handleAutoCreateDefaultAccounts = async () => {
     if (!supabase) return;
     setSeeding(true);
@@ -39,7 +38,7 @@ export default function Login({ onOpenConfig }) {
       ];
 
       for (const d of defaults) {
-        const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+        const { data: signUpData } = await supabase.auth.signUp({
           email: d.email,
           password: d.password,
           options: {
@@ -48,8 +47,7 @@ export default function Login({ onOpenConfig }) {
         });
 
         if (signUpData?.user) {
-          // Buat record di profiles
-          await supabase.from('profiles').upsert({
+          await supabase.from('bukukas_profiles').upsert({
             id: signUpData.user.id,
             username: d.username,
             name: d.name,
@@ -73,8 +71,6 @@ export default function Login({ onOpenConfig }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-600 via-teal-700 to-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
-      
-      {/* Tombol Pengaturan Supabase */}
       <button
         onClick={onOpenConfig}
         className="absolute top-4 right-4 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition flex items-center gap-1.5 text-xs"
@@ -85,8 +81,6 @@ export default function Login({ onOpenConfig }) {
       </button>
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-white/20">
-        
-        {/* App Logo & Header */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30">
             <BookOpen className="w-9 h-9 text-white" />
@@ -95,14 +89,12 @@ export default function Login({ onOpenConfig }) {
           <p className="text-xs text-slate-500 mt-1">Realtime Supabase • WiFi, Servis & Pribadi</p>
         </div>
 
-        {/* Error Alert */}
         {error && (
           <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
             <span className="font-semibold">Perhatian:</span> {error}
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
@@ -154,7 +146,6 @@ export default function Login({ onOpenConfig }) {
           </button>
         </form>
 
-        {/* Quick Test Accounts Buttons */}
         <div className="mt-8 pt-6 border-t border-slate-100">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center mb-3">
             Akun Login Cepat (Klik untuk coba):
@@ -191,7 +182,6 @@ export default function Login({ onOpenConfig }) {
             </button>
           </div>
 
-          {/* Tombol Buat Akun Default jika Supabase masih kosong */}
           <div className="mt-4 text-center">
             <button
               type="button"
@@ -203,7 +193,6 @@ export default function Login({ onOpenConfig }) {
             </button>
           </div>
         </div>
-
       </div>
       
       <p className="text-[11px] text-emerald-100/70 mt-6 text-center">
