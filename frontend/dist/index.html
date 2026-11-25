@@ -8,7 +8,26 @@
     <meta name="theme-color" content="#16a34a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Buku Kas WiFi & Servis</title>
+    <script>
+      // Otomatis reload jika terjadi pembaruan script di server
+      window.addEventListener('vite:preloadError', () => {
+        window.location.reload();
+      });
+      window.addEventListener('error', (e) => {
+        if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK')) {
+          const key = 'bukukas_last_auto_reload';
+          const last = parseInt(sessionStorage.getItem(key) || '0', 10);
+          if (Date.now() - last > 10000) {
+            sessionStorage.setItem(key, Date.now().toString());
+            window.location.reload();
+          }
+        }
+      }, true);
+    </script>
     <script type="module" crossorigin src="./assets/index-BjmCagdg.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-BvwNpoT_.css">
   </head>
