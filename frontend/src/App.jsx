@@ -85,7 +85,8 @@ export default function App() {
       let query = supabase
         .from('bukukas_transactions')
         .select('*')
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false, nullsFirst: false });
 
       if (isKasir) {
         query = query.eq('book', 'WIFI');

@@ -143,12 +143,61 @@ export default function TransactionList({
     );
   };
 
+  // Helper mendapatkan timestamp waktu/jam transaksi untuk pengurutan
+  const getTimeValue = (tx) => {
+    if (tx.created_at) {
+      const t = new Date(tx.created_at).getTime();
+      if (!isNaN(t)) return t;
+    }
+    if (tx.id && typeof tx.id === 'string' && tx.id.startsWith('trx-')) {
+      const ts = parseInt(tx.id.replace('trx-', ''), 10);
+      if (!isNaN(ts)) return ts;
+    }
+    return 0;
+  };
+
+  // Helper memformat jam (contoh: "14:30")
+  const formatTimeOnly = (tx) => {
+    if (tx.created_at) {
+      try {
+        const d = new Date(tx.created_at);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        }
+      } catch {
+        // ignore
+      }
+    }
+    if (tx.id && typeof tx.id === 'string' && tx.id.startsWith('trx-')) {
+      try {
+        const ts = parseInt(tx.id.replace('trx-', ''), 10);
+        if (!isNaN(ts)) {
+          const d = new Date(ts);
+          return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return '';
+  };
+
   // Mengelompokkan transaksi per tanggal dan menghitung total pengeluaran & pemasukan harian
   const groupedTransactions = useMemo(() => {
     const groups = [];
     const dateMap = {};
 
-    transactions.forEach((tx) => {
+    // Urutkan transaksi: Tanggal terbaru di atas (DESC), lalu jam transaksi terbaru di atas (DESC)
+    const sorted = [...transactions].sort((a, b) => {
+      const dateA = a.date ? a.date.slice(0, 10) : '';
+      const dateB = b.date ? b.date.slice(0, 10) : '';
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA);
+      }
+      return getTimeValue(b) - getTimeValue(a);
+    });
+
+    sorted.forEach((tx) => {
       const rawDate = tx.date ? tx.date.slice(0, 10) : '1970-01-01';
       const isIncome = (tx.type === 'INCOME' || tx.type === 'in');
       const amt = parseFloat(tx.amount) || 0;
@@ -249,6 +298,7 @@ export default function TransactionList({
                   const title = tx.notes?.trim() || tx.category;
                   // Subtitle: nama user / @nama
                   const userTag = tx.user_name ? `@${tx.user_name}` : `@${tx.book || 'User'}`;
+                  const timeStr = formatTimeOnly(tx);
 
                   return (
                     <div key={tx.id} className="relative">
@@ -262,16 +312,19 @@ export default function TransactionList({
                         <div className="flex items-center gap-3.5">
                           {getCategoryBadge(tx.category, tx.notes, tx.book)}
 
-                          {/* Tengah: Judul */}
+                          {/* Tengah: Judul & Jam */}
                           <div>
                             <p className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-800'} leading-snug`}>
                               {title}
                             </p>
-                            {!isDark && (
-                              <p className="text-[11px] text-zinc-500 mt-0.5 font-normal">
-                                {userTag}
-                              </p>
-                            )}
+                            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 mt-0.5 font-normal">
+                              {timeStr && (
+                                <span className={`text-[10px] font-mono ${isDark ? 'text-zinc-400 bg-zinc-800/80' : 'text-slate-500 bg-slate-100'} px-1.5 py-0.2 rounded`}>
+                                  {timeStr}
+                                </span>
+                              )}
+                              {!isDark && userTag && <span>{userTag}</span>}
+                            </div>
                           </div>
                         </div>
 

@@ -186,7 +186,8 @@ export default function TransactionModal({
         payment_method: 'Tunai',
         receipt_url: receiptUrl || null,
         user_id: user?.id,
-        user_name: profile?.name || 'User'
+        user_name: profile?.name || 'User',
+        created_at: editingTx?.created_at || new Date().toISOString()
       };
 
       if (editingTx) {
@@ -319,7 +320,8 @@ export default function TransactionModal({
         payment_method: 'Tunai',
         receipt_url: receiptUrl || null,
         user_id: user?.id,
-        user_name: profile?.name || 'User'
+        user_name: profile?.name || 'User',
+        created_at: editingTx?.created_at || new Date().toISOString()
       };
 
       if (editingTx) {
