@@ -60,24 +60,28 @@ export default function TransactionModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Icon mapping untuk kategori
+  // Icon mapping untuk kategori persis seperti tampilan 1Money di screenshot
   const getCatIcon = (name) => {
     const n = (name || '').toLowerCase();
-    if (n.includes('makan') || n.includes('kuliner') || n.includes('warung')) return <Utensils className="w-5 h-5" />;
-    if (n.includes('minum') || n.includes('kopi')) return <Wine className="w-5 h-5" />;
-    if (n.includes('trans') || n.includes('bensin') || n.includes('bbm')) return <Bus className="w-5 h-5" />;
-    if (n.includes('belanja') || n.includes('pasar') || n.includes('part')) return <ShoppingCart className="w-5 h-5" />;
-    if (n.includes('tagihan') || n.includes('pajak') || n.includes('listrik')) return <Receipt className="w-5 h-5" />;
-    if (n.includes('nabung') || n.includes('invest')) return <PiggyBank className="w-5 h-5" />;
+    if (n.includes('tidak tercatat')) return <Coffee className="w-5 h-5" />;
+    if (n.includes('makan') || n.includes('kuliner') || n.includes('warung') || n.includes('lawuh')) return <Utensils className="w-5 h-5" />;
+    if (n.includes('minum') || n.includes('kopi') || n.includes('susu') || n.includes('bearbrand')) return <Wine className="w-5 h-5" />;
+    if (n.includes('trans') || n.includes('bensin') || n.includes('bbm') || n.includes('ojek')) return <Bus className="w-5 h-5" />;
+    if (n.includes('belanja') || n.includes('pasar') || n.includes('mart')) return <ShoppingCart className="w-5 h-5" />;
+    if (n.includes('tagihan') || n.includes('listrik') || n.includes('air') || n.includes('pdam')) return <Receipt className="w-5 h-5" />;
+    if (n.includes('pajak')) return <Receipt className="w-5 h-5" />;
+    if (n.includes('nabung') || n.includes('invest') || n.includes('tabungan')) return <PiggyBank className="w-5 h-5" />;
     if (n.includes('kluarga') || n.includes('keluarga') || n.includes('sangu')) return <Heart className="w-5 h-5" />;
-    if (n.includes('anak') || n.includes('adek')) return <Smile className="w-5 h-5" />;
-    if (n.includes('perbaikan') || n.includes('servis') || n.includes('alat')) return <Wrench className="w-5 h-5" />;
+    if (n.includes('anak') || n.includes('adek') || n.includes('jajan')) return <Smile className="w-5 h-5" />;
+    if (n.includes('perbaikan') || n.includes('servis') || n.includes('alat') || n.includes('rusak')) return <Wrench className="w-5 h-5" />;
     if (n.includes('wifi') || n.includes('internet')) return <Wifi className="w-5 h-5" />;
-    if (n.includes('hp') || n.includes('laptop')) return <Smartphone className="w-5 h-5" />;
-    if (n.includes('gaji') || n.includes('omset') || n.includes('pendapatan')) return <DollarSign className="w-5 h-5" />;
-    if (n.includes('sekolah') || n.includes('didik')) return <GraduationCap className="w-5 h-5" />;
-    if (n.includes('sehat') || n.includes('obat')) return <Activity className="w-5 h-5" />;
+    if (n.includes('qrin') || n.includes('qris') || n.includes('hp') || n.includes('laptop')) return <Smartphone className="w-5 h-5" />;
+    if (n.includes('gaji') || n.includes('omset') || n.includes('pendapatan') || n.includes('uang masuk')) return <DollarSign className="w-5 h-5" />;
+    if (n.includes('sekolah') || n.includes('didik') || n.includes('pendidikan')) return <GraduationCap className="w-5 h-5" />;
+    if (n.includes('sehat') || n.includes('obat') || n.includes('kesehatan')) return <Activity className="w-5 h-5" />;
     if (n.includes('pakaian') || n.includes('baju')) return <Shirt className="w-5 h-5" />;
+    if (n.includes('sosial') || n.includes('infaq') || n.includes('sedekah')) return <Users className="w-5 h-5" />;
+    if (n.includes('peliharaan') || n.includes('kucing') || n.includes('anjing')) return <Smile className="w-5 h-5" />;
     return <Coffee className="w-5 h-5" />;
   };
 
@@ -138,6 +142,75 @@ export default function TransactionModal({
       if (parsed.notes) {
         setNotes(parsed.notes);
       }
+    }
+  };
+
+  // Otomatis Simpan Langsung dari Bilah AI tanpa perlu klik tombol Simpan
+  const handleAiDirectSave = async (inputStr) => {
+    const targetText = (inputStr || aiText || '').trim();
+    if (!targetText) return;
+    if (loading) return;
+
+    setError('');
+    const parsed = parseSmartInput(targetText, activeCategories);
+
+    let finalAmount = parsed?.amount || parseFloat(amount.replace(/[^0-9]/g, '')) || 0;
+    if (!finalAmount || finalAmount <= 0) {
+      setError('Nominal belum terdeteksi. Contoh ketik: "bensin 32rb" atau "makan 20.000"');
+      return;
+    }
+
+    const finalType = parsed?.type || type;
+    const dbType = finalType === 'INCOME' ? 'in' : 'out';
+
+    let finalCategory = parsed?.category || category;
+    if (!finalCategory) {
+      if (activeCategories.length > 0) {
+        finalCategory = activeCategories[0];
+      } else {
+        finalCategory = finalType === 'INCOME' ? 'Gaji' : 'Tidak Tercatat';
+      }
+    }
+
+    const finalNotes = parsed?.notes || targetText;
+
+    setLoading(true);
+    try {
+      const payload = {
+        type: dbType,
+        amount: finalAmount,
+        category: finalCategory,
+        notes: finalNotes,
+        date: date,
+        book: book,
+        payment_method: 'Tunai',
+        receipt_url: receiptUrl || null,
+        user_id: user?.id,
+        user_name: profile?.name || 'User'
+      };
+
+      if (editingTx) {
+        const { error: updateErr } = await supabase
+          .from('bukukas_transactions')
+          .update(payload)
+          .eq('id', editingTx.id);
+
+        if (updateErr) throw updateErr;
+      } else {
+        payload.id = `trx-${Date.now()}`;
+        const { error: insertErr } = await supabase
+          .from('bukukas_transactions')
+          .insert([payload]);
+
+        if (insertErr) throw insertErr;
+      }
+
+      onSuccess();
+      onClose();
+    } catch (err) {
+      setError('Gagal simpan: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -408,7 +481,7 @@ export default function TransactionModal({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  handleApplyAiText(aiText);
+                  handleAiDirectSave(aiText);
                 }
               }}
               className="flex-1 bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none"
@@ -423,7 +496,7 @@ export default function TransactionModal({
                   ? 'bg-rose-600 text-white animate-pulse' 
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-700'
               }`}
-              title="Bicara dengan suara (contoh: 'Beli bensin 30rb')"
+              title="Bicara dengan suara (contoh: 'bensin 32rb')"
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
@@ -454,15 +527,20 @@ export default function TransactionModal({
               className="hidden"
             />
 
-            {/* Tombol Terapkan / Bersihkan */}
+            {/* Tombol Terapkan & Simpan Otomatis Langsung */}
             {aiText ? (
               <button
                 type="button"
-                onClick={() => handleApplyAiText(aiText)}
-                className="p-1.5 text-amber-400 hover:text-amber-300 rounded-full"
-                title="Terapkan"
+                onClick={() => handleAiDirectSave(aiText)}
+                disabled={loading}
+                className="p-1.5 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-full transition-transform active:scale-95 shadow-md flex items-center justify-center"
+                title="Terapkan & Simpan Otomatis Langsung"
               >
-                <ArrowRight className="w-4 h-4" />
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                )}
               </button>
             ) : null}
 

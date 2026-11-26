@@ -17,11 +17,12 @@ export default function BottomNav({
   onOpenCategoryReport,
   onOpenSettings
 }) {
-  const activeColor = currentTheme?.activeTab || 'text-blue-600';
-  const fabBg = currentTheme?.fabGradient || 'from-blue-600 to-sky-500';
+  const isDark = currentTheme?.isDark;
+  const activeColor = isDark ? 'text-amber-400' : (currentTheme?.activeTab || 'text-blue-600');
+  const fabBg = isDark ? 'from-amber-400 via-yellow-400 to-amber-400' : (currentTheme?.fabGradient || 'from-blue-600 to-sky-500');
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1 shadow-2xl safe-area-bottom">
+    <div className={`fixed bottom-0 left-0 right-0 z-40 ${isDark ? 'bg-[#121212] border-zinc-800' : 'bg-white border-slate-200'} border-t px-2 py-1 shadow-2xl safe-area-bottom`}>
       <div className="max-w-md mx-auto flex items-center justify-around relative">
         
         {/* Tab 1: Riwayat */}
@@ -30,7 +31,7 @@ export default function BottomNav({
             if (setActiveTab) setActiveTab('RIWAYAT');
           }}
           className={`flex-1 py-1.5 flex flex-col items-center justify-center transition ${
-            activeTab === 'RIWAYAT' ? `${activeColor} font-bold` : 'text-slate-500 hover:text-slate-700'
+            activeTab === 'RIWAYAT' ? `${activeColor} font-bold` : (isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-slate-500 hover:text-slate-700')
           }`}
         >
           <ClipboardList className="w-5 h-5 stroke-[2]" />
@@ -41,10 +42,10 @@ export default function BottomNav({
         <div className="flex-1 flex justify-center -mt-6">
           <button
             onClick={onAddNew}
-            className={`w-14 h-14 rounded-full bg-gradient-to-tr ${fabBg} ${currentTheme?.fabTextColor || 'text-white'} shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border-4 ${currentTheme?.fabBorder || 'border-white'}`}
+            className={`w-14 h-14 rounded-full bg-gradient-to-tr ${fabBg} ${isDark ? 'text-black' : (currentTheme?.fabTextColor || 'text-white')} shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border-4 ${isDark ? 'border-[#121212]' : (currentTheme?.fabBorder || 'border-white')}`}
             title="Tambah Catatan Transaksi"
           >
-            <Plus className={`w-8 h-8 stroke-[3.5] ${currentTheme?.fabTextColor || 'text-white'}`} />
+            <Plus className={`w-8 h-8 stroke-[3.5] ${isDark ? 'text-black' : (currentTheme?.fabTextColor || 'text-white')}`} />
           </button>
         </div>
 
@@ -53,7 +54,7 @@ export default function BottomNav({
           onClick={() => {
             if (onOpenReport) onOpenReport();
           }}
-          className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition"
+          className={`flex-1 py-1.5 flex flex-col items-center justify-center ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-slate-500 hover:text-slate-800'} transition`}
         >
           <FileSpreadsheet className="w-5 h-5 stroke-[2]" />
           <span className="text-[10px] mt-0.5">Laporan</span>
@@ -65,7 +66,7 @@ export default function BottomNav({
             onClick={() => {
               if (onOpenSettings) onOpenSettings();
             }}
-            className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 transition"
+            className={`flex-1 py-1.5 flex flex-col items-center justify-center ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-slate-500 hover:text-slate-800'} transition`}
           >
             <Settings className="w-5 h-5 stroke-[2]" />
             <span className="text-[10px] mt-0.5">Pengaturan</span>

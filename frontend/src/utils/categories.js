@@ -35,19 +35,29 @@ export const DEFAULT_CATEGORIES = {
   },
   PRIBADI: {
     INCOME: [
-      'Gaji / Bagi Hasil Usaha',
-      'Pendapatan Lain Pribadi',
-      'Investasi / Dividen'
+      'Gaji',
+      'Investasi',
+      'Pendapatan Lain',
+      'Uang Masuk'
     ],
     EXPENSE: [
-      'Nabung',
-      'Makan & Minum',
-      'Laundry',
-      'Pulsa',
-      'Bocil / Keluarga',
-      'Infaq / Sedekah',
-      'Kebutuhan Pribadi & Keluarga',
-      'Belanja Bulanan'
+      'Tidak Tercatat',
+      'tagihan',
+      'pajak',
+      'nabung',
+      'kluarga',
+      'qrin',
+      'Belanja',
+      'Makanan',
+      'Pendidikan',
+      'Transportasi',
+      'Sosial',
+      'Pakaian',
+      'Minuman',
+      'Kesehatan',
+      'Peliharaan',
+      'Perbaikan',
+      'Anak-anak'
     ]
   }
 };

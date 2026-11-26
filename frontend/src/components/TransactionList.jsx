@@ -262,14 +262,16 @@ export default function TransactionList({
                         <div className="flex items-center gap-3.5">
                           {getCategoryBadge(tx.category, tx.notes, tx.book)}
 
-                          {/* Tengah: Judul & @User */}
+                          {/* Tengah: Judul */}
                           <div>
                             <p className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-slate-800'} leading-snug`}>
                               {title}
                             </p>
-                            <p className="text-[11px] text-zinc-500 mt-0.5 font-normal">
-                              {userTag}
-                            </p>
+                            {!isDark && (
+                              <p className="text-[11px] text-zinc-500 mt-0.5 font-normal">
+                                {userTag}
+                              </p>
+                            )}
                           </div>
                         </div>
 
