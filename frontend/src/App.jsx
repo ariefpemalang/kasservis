@@ -15,7 +15,7 @@ export default function App() {
   const { user, profile, loading: authLoading, isOwner, isKasir, isTeknisi } = useAuth();
 
   const [configModalOpen, setConfigModalOpen] = useState(!isSupabaseConfigured());
-  const [currentBook, setCurrentBook] = useState('ALL');
+  const [currentBook, setCurrentBook] = useState('SERVIS');
 
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -62,7 +62,7 @@ export default function App() {
     if (profile) {
       if (isKasir) setCurrentBook('WIFI');
       else if (isTeknisi) setCurrentBook('SERVIS');
-      else if (isOwner) setCurrentBook('ALL');
+      else if (isOwner && currentBook === 'ALL') setCurrentBook('SERVIS');
     }
   }, [profile, isKasir, isTeknisi, isOwner]);
 

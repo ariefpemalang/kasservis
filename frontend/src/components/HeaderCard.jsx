@@ -272,16 +272,6 @@ export default function HeaderCard({
                       <User className="w-4 h-4 text-purple-500" />
                       <span>Buku Kas Pribadi</span>
                     </button>
-
-                    <button
-                      onClick={() => { setCurrentBook('ALL'); setDrawerOpen(false); }}
-                      className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'ALL' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'hover:bg-slate-50 text-slate-700'
-                      }`}
-                    >
-                      <Layers className="w-4 h-4 text-emerald-500" />
-                      <span>Semua Kas (Gabungan)</span>
-                    </button>
                   </div>
                 </div>
               )}
@@ -308,8 +298,8 @@ export default function HeaderCard({
                     </button>
                   )}
 
-                  {/* Konfigurasi Supabase: Disembunyikan pada Buku Servis & WiFi, hanya bisa diakses Owner di Semua Kas / Pribadi */}
-                  {isOwner && currentBook !== 'SERVIS' && currentBook !== 'WIFI' && (
+                  {/* Konfigurasi Supabase: Hanya muncul di Buku Kas Pribadi untuk Owner */}
+                  {isOwner && currentBook === 'PRIBADI' && (
                     <button
                       onClick={() => { onOpenConfig(); setDrawerOpen(false); }}
                       className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
