@@ -55,3 +55,17 @@ Karena aplikasi sudah menggunakan Supabase, di aaPanel Anda **cukup membuat Webs
 | **Teknisi** | `teknisi` | `teknisi123` | Hanya Buku Kas Servis |
 
 4. Anda bisa langsung klik tombol login cepat untuk masuk ke akun yang diinginkan!
+
+---
+
+## 📲 Download & Build Aplikasi Android (APK)
+
+Aplikasi ini sudah dikonfigurasi dengan **Capacitor** dan **GitHub Actions** untuk membuat file `.apk` secara otomatis langsung di GitHub cloud:
+
+### Cara Mendapatkan File APK dari GitHub:
+1. Masuk ke halaman repositori GitHub Anda: **[github.com/ariefpemalang/kasservis](https://github.com/ariefpemalang/kasservis)**
+2. Klik tab **Actions** di bagian atas repositori.
+3. Klik alur kerja **Build Android APK** terbaru (yang bertanda centang hijau).
+4. Di bagian bawah (bagian **Artifacts**), klik **`SaldoKu-Mobile-APK`** untuk mendownload file APK.
+5. Anda juga bisa mendownloadnya langsung melalui tab **Releases** di samping kanan repositori (Release: `latest-apk`).
+6. Kirim file APK ke HP Android Anda dan pasang (install).

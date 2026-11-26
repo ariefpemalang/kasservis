@@ -4,6 +4,8 @@
   "description": "Aplikasi Buku Kas Realtime WiFi, Servis, dan Pribadi",
   "scripts": {
     "build": "cd frontend && npm run build",
+    "cap:sync": "npx cap sync android",
+    "cap:build": "npm run build && npx cap sync android",
     "start": "cd backend && node src/server.js",
     "backend:dev": "cd backend && npm run dev",
     "frontend:dev": "cd frontend && npm run dev",
@@ -12,5 +14,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/cli": "^8.6.3",
+    "@capacitor/core": "^8.6.3"
+  }
 }

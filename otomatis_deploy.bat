@@ -21,14 +21,17 @@ echo [2/4] Menyalin file hasil build ke web root...
 xcopy /E /Y /I frontend\dist\* . > nul
 tar -a -cf bukukas_dist.zip -C frontend\dist .
 
-echo [3/4] Melakukan Commit ke Git...
+echo [3/5] Sinkronisasi aset ke Android (Capacitor)...
+call npx cap sync android
+
+echo [4/5] Melakukan Commit ke Git...
 git add .
 set /p commit_msg="Masukkan pesan update (atau tekan Enter untuk default): "
 if "%commit_msg%"=="" set commit_msg=Auto update aplikasi dan aset
 
 git commit -m "%commit_msg%"
 
-echo [4/4] Mengunggah (Push) ke GitHub (main & master)...
+echo [5/5] Mengunggah (Push) ke GitHub (main & master)...
 git push origin main
 git push origin main:master
 if %errorlevel% neq 0 (

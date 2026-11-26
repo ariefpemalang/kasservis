@@ -1,0 +1,5 @@
+{
+  "appId": "com.saldoku.app",
+  "appName": "SaldoKu",
+  "webDir": "frontend/dist"
+}
