@@ -308,13 +308,16 @@ export default function HeaderCard({
                     </button>
                   )}
 
-                  <button
-                    onClick={() => { onOpenConfig(); setDrawerOpen(false); }}
-                    className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <Settings className="w-4 h-4 text-slate-500" />
-                    <span>Konfigurasi Supabase</span>
-                  </button>
+                  {/* Konfigurasi Supabase: Disembunyikan pada Buku Servis & WiFi, hanya bisa diakses Owner di Semua Kas / Pribadi */}
+                  {isOwner && currentBook !== 'SERVIS' && currentBook !== 'WIFI' && (
+                    <button
+                      onClick={() => { onOpenConfig(); setDrawerOpen(false); }}
+                      className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <Settings className="w-4 h-4 text-slate-500" />
+                      <span>Konfigurasi Supabase</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
