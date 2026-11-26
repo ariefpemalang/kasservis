@@ -60,19 +60,6 @@ export default function BottomNav({
           <span className="text-[10px] mt-0.5">Laporan</span>
         </button>
 
-        {/* Tab 4: Pengaturan (Hanya muncul jika bukan Buku Servis dan bukan Buku WiFi) */}
-        {currentBook !== 'SERVIS' && currentBook !== 'WIFI' && (
-          <button
-            onClick={() => {
-              if (onOpenSettings) onOpenSettings();
-            }}
-            className={`flex-1 py-1.5 flex flex-col items-center justify-center ${isDark ? 'text-zinc-500 hover:text-zinc-300' : 'text-slate-500 hover:text-slate-800'} transition`}
-          >
-            <Settings className="w-5 h-5 stroke-[2]" />
-            <span className="text-[10px] mt-0.5">Pengaturan</span>
-          </button>
-        )}
-
       </div>
     </div>
   );

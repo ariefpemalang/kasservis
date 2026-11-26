@@ -319,14 +319,14 @@ export default function HeaderCard({
                     </button>
                   )}
 
-                  {/* Hanya Superadmin (Owner) yang bisa kelola kategori (Hanya di Buku Pribadi) */}
-                  {isOwner && currentBook === 'PRIBADI' && (
+                  {/* Tombol Pengaturan (Kelola Kategori) khusus Owner di Sidebar */}
+                  {isOwner && (
                     <button
                       onClick={() => { onOpenCategories(); setDrawerOpen(false); }}
                       className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
                     >
-                      <Tag className="w-4 h-4 text-emerald-600" />
-                      <span>Kelola Kategori</span>
+                      <Settings className="w-4 h-4 text-emerald-600" />
+                      <span>Pengaturan Kategori</span>
                     </button>
                   )}
 
