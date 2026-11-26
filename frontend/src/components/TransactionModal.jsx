@@ -123,6 +123,85 @@ export default function TransactionModal({
   const allCategories = getStoredCategories();
   const activeCategories = (allCategories[book] && allCategories[book][type]) || [];
 
+  // Tema Dinamis Khusus Modal Transaksi:
+  // - SERVIS: Tema Biru
+  // - WIFI: Tema Pink
+  // - PRIBADI: Dinamis sesuai tema aktif Pribadi
+  const getThemeStyles = () => {
+    const targetBook = book || currentBook;
+    if (targetBook === 'SERVIS') {
+      return {
+        bookName: 'SERVICE',
+        textAccent: 'text-blue-400',
+        textAccentHover: 'hover:text-blue-300',
+        bgAccent: 'bg-blue-600',
+        bgAccentHover: 'hover:bg-blue-500',
+        btnText: 'text-white',
+        borderAccent: 'border-blue-500',
+        focusBorder: 'focus-within:border-blue-500',
+        badgeActive: 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-500/30',
+        headerBadge: 'bg-blue-950/60 text-blue-300 border-blue-600/50'
+      };
+    }
+    if (targetBook === 'WIFI') {
+      return {
+        bookName: 'WIFI',
+        textAccent: 'text-pink-400',
+        textAccentHover: 'hover:text-pink-300',
+        bgAccent: 'bg-pink-600',
+        bgAccentHover: 'hover:bg-pink-500',
+        btnText: 'text-white',
+        borderAccent: 'border-pink-500',
+        focusBorder: 'focus-within:border-pink-500',
+        badgeActive: 'bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/30',
+        headerBadge: 'bg-pink-950/60 text-pink-300 border-pink-600/50'
+      };
+    }
+    // Default PRIBADI
+    if (currentTheme?.isDark) {
+      return {
+        bookName: 'PRIBADI',
+        textAccent: 'text-amber-400',
+        textAccentHover: 'hover:text-amber-300',
+        bgAccent: 'bg-amber-400',
+        bgAccentHover: 'hover:bg-amber-300',
+        btnText: 'text-black',
+        borderAccent: 'border-amber-400',
+        focusBorder: 'focus-within:border-amber-400',
+        badgeActive: 'bg-amber-400 text-black border-amber-300 shadow-lg shadow-amber-400/20',
+        headerBadge: 'bg-amber-950/60 text-amber-300 border-amber-600/50'
+      };
+    }
+    if (currentTheme?.id === 'emerald') {
+      return {
+        bookName: 'PRIBADI',
+        textAccent: 'text-emerald-400',
+        textAccentHover: 'hover:text-emerald-300',
+        bgAccent: 'bg-emerald-600',
+        bgAccentHover: 'hover:bg-emerald-500',
+        btnText: 'text-white',
+        borderAccent: 'border-emerald-500',
+        focusBorder: 'focus-within:border-emerald-500',
+        badgeActive: 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-500/30',
+        headerBadge: 'bg-emerald-950/60 text-emerald-300 border-emerald-600/50'
+      };
+    }
+    return {
+      bookName: 'PRIBADI',
+      textAccent: 'text-purple-400',
+      textAccentHover: 'hover:text-purple-300',
+      bgAccent: 'bg-purple-600',
+      bgAccentHover: 'hover:bg-purple-500',
+      btnText: 'text-white',
+      borderAccent: 'border-purple-500',
+      focusBorder: 'focus-within:border-purple-500',
+      badgeActive: 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-500/30',
+      headerBadge: 'bg-purple-950/60 text-purple-300 border-purple-600/50'
+    };
+  };
+
+  const themeStyles = getThemeStyles();
+
   // Jalankan AI Parsing saat pengguna mengetik atau selesai voice
   const handleApplyAiText = (inputStr) => {
     const targetText = inputStr || aiText;
@@ -353,7 +432,7 @@ export default function TransactionModal({
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
       <div className="bg-[#181818] text-white w-full sm:max-w-md h-[95vh] sm:h-auto sm:max-h-[90vh] sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border border-zinc-800">
         
-        {/* TOP BAR: Batalkan | Tambahkan | Simpan */}
+        {/* TOP BAR: Batalkan | Tambahkan [Badge Buku] | Simpan */}
         <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
           <button 
             type="button" 
@@ -363,15 +442,20 @@ export default function TransactionModal({
             Batalkan
           </button>
           
-          <h2 className="text-base font-bold text-white">
-            {editingTx ? 'Ubah Catatan' : 'Tambahkan'}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-white">
+              {editingTx ? 'Ubah Catatan' : 'Tambahkan'}
+            </h2>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${themeStyles.headerBadge}`}>
+              {themeStyles.bookName}
+            </span>
+          </div>
 
           <button
             type="button"
             onClick={handleSubmit}
             disabled={loading || uploading}
-            className="text-sm font-bold text-amber-400 hover:text-amber-300 disabled:opacity-50 transition"
+            className={`text-sm font-bold ${themeStyles.textAccent} ${themeStyles.textAccentHover} disabled:opacity-50 transition`}
           >
             {loading ? 'Menyimpan...' : 'Simpan'}
           </button>
@@ -417,7 +501,7 @@ export default function TransactionModal({
 
           {/* Sub info ringkas (Kategori terpilih / Catatan) */}
           <div className="flex items-center justify-center gap-2 mt-1 text-[11px] text-zinc-400">
-            <span className={category ? 'text-amber-400 font-semibold' : 'text-zinc-500'}>
+            <span className={category ? `${themeStyles.textAccent} font-semibold` : 'text-zinc-500'}>
               {category ? `Kategori: ${category}` : 'Pilih kategori di bawah'}
             </span>
             {notes && <span>• {notes}</span>}
@@ -447,13 +531,13 @@ export default function TransactionModal({
                 >
                   <div className={`w-13 h-13 rounded-full flex items-center justify-center transition border ${
                     isSelected 
-                      ? 'bg-amber-400 text-black border-amber-300 shadow-lg shadow-amber-400/20' 
+                      ? themeStyles.badgeActive 
                       : 'bg-[#252525] text-zinc-300 border-zinc-700/80 group-hover:border-zinc-500'
                   }`}>
                     {getCatIcon(cat)}
                   </div>
                   <span className={`text-[11px] text-center line-clamp-1 max-w-[70px] ${
-                    isSelected ? 'text-amber-400 font-bold' : 'text-zinc-400 font-medium'
+                    isSelected ? `${themeStyles.textAccent} font-bold` : 'text-zinc-400 font-medium'
                   }`}>
                     {cat}
                   </span>
@@ -468,7 +552,7 @@ export default function TransactionModal({
           <div className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full border transition-all ${
             isListening 
               ? 'bg-rose-950/40 border-rose-500 shadow-lg shadow-rose-500/20' 
-              : 'bg-[#252525] border-zinc-700/80 focus-within:border-amber-400'
+              : `bg-[#252525] border-zinc-700/80 ${themeStyles.focusBorder}`
           }`}>
             
             {/* Input AI Teks */}
@@ -535,11 +619,11 @@ export default function TransactionModal({
                 type="button"
                 onClick={() => handleAiDirectSave(aiText)}
                 disabled={loading}
-                className="p-1.5 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-full transition-transform active:scale-95 shadow-md flex items-center justify-center"
+                className={`p-1.5 ${themeStyles.bgAccent} ${themeStyles.bgAccentHover} ${themeStyles.btnText} font-bold rounded-full transition-transform active:scale-95 shadow-md flex items-center justify-center`}
                 title="Terapkan & Simpan Otomatis Langsung"
               >
                 {loading ? (
-                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <div className={`w-4 h-4 border-2 ${themeStyles.btnText === 'text-white' ? 'border-white' : 'border-black'} border-t-transparent rounded-full animate-spin`} />
                 ) : (
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 )}

@@ -303,6 +303,7 @@ export default function App() {
           currentBook={currentBook}
           editingTx={editingTx}
           onSuccess={fetchData}
+          currentTheme={currentTheme}
         />
 
         <UserManagementModal
