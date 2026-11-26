@@ -100,7 +100,7 @@ export default function HeaderCard({
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="text-base font-black tracking-wide leading-none drop-shadow-sm">SaldoKu</span>
-                <span className="text-[10px] bg-white/25 px-1.5 py-0.5 rounded font-black tracking-wider uppercase leading-none">
+                <span className="text-base font-black tracking-wide uppercase leading-none bg-white/20 px-2 py-0.5 rounded-lg drop-shadow-sm">
                   {getBookTitle()}
                 </span>
               </div>
@@ -170,21 +170,21 @@ export default function HeaderCard({
         <div className="flex-1 grid grid-cols-3 gap-1 text-right">
           <div>
             <p className="text-[11px] text-white/85 font-medium leading-tight">Pengeluaran</p>
-            <p className="text-xs sm:text-sm font-bold text-white tracking-tight mt-0.5 font-mono">
+            <p className="text-base font-semibold text-white tracking-tight mt-0.5">
               {formatNumberOnly(totalExpense)}
             </p>
           </div>
 
           <div>
             <p className="text-[11px] text-white/85 font-medium leading-tight">Pemasukan</p>
-            <p className="text-xs sm:text-sm font-bold text-white tracking-tight mt-0.5 font-mono">
+            <p className="text-base font-semibold text-white tracking-tight mt-0.5">
               {formatNumberOnly(totalIncome)}
             </p>
           </div>
 
           <div>
             <p className="text-[11px] text-white/85 font-medium leading-tight">Saldo</p>
-            <p className="text-xs sm:text-sm font-bold text-white tracking-tight mt-0.5 font-mono">
+            <p className="text-base font-semibold text-white tracking-tight mt-0.5">
               {formatNumberOnly(balance)}
             </p>
           </div>
