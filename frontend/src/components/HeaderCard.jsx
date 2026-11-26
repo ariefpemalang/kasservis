@@ -81,8 +81,8 @@ export default function HeaderCard({
     <div className={`bg-gradient-to-r ${currentTheme?.headerGradient || 'from-blue-600 via-sky-600 to-blue-500'} text-white shadow-md transition-all duration-300`}>
       
       {/* Top Bar: Hamburger Menu, Title, Icons */}
-      <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
           <button 
             onClick={() => setDrawerOpen(true)}
             className="p-1 hover:bg-white/20 rounded-lg transition"
@@ -91,9 +91,24 @@ export default function HeaderCard({
             <Menu className="w-6 h-6 stroke-[2.5]" />
           </button>
           
-          <h1 className="text-lg font-black tracking-wider uppercase drop-shadow-sm">
-            {getBookTitle()}
-          </h1>
+          <div className="flex items-center gap-2">
+            <img 
+              src="/logo.webp" 
+              alt="SaldoKu" 
+              className="w-8 h-8 rounded-xl object-contain bg-white/10 p-0.5 border border-white/20 shadow-xs" 
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-black tracking-wide leading-none drop-shadow-sm">SaldoKu</span>
+                <span className="text-[10px] bg-white/25 px-1.5 py-0.5 rounded font-black tracking-wider uppercase leading-none">
+                  {getBookTitle()}
+                </span>
+              </div>
+              <span className="text-[9px] text-white/80 font-medium tracking-wider uppercase leading-none mt-0.5">
+                Catatan Keuangan
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-1">
@@ -240,11 +255,13 @@ export default function HeaderCard({
                 : `bg-gradient-to-r ${currentTheme?.headerGradient || 'from-purple-600 to-indigo-600'}`
             } text-white shadow-sm`}>
               <div className="flex items-center justify-between mb-3">
-                <span className={`text-xs uppercase font-bold tracking-wider ${
-                  currentBook === 'WIFI' ? 'text-pink-200' : currentBook === 'SERVIS' ? 'text-sky-200' : 'text-white/80'
-                }`}>
-                  Buku Kas & Servis
-                </span>
+                <div className="flex items-center gap-2">
+                  <img src="/logo.webp" alt="SaldoKu" className="w-7 h-7 rounded-lg object-contain bg-white/20 p-0.5 border border-white/25 shadow-xs" />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-black tracking-wide leading-tight">SaldoKu</span>
+                    <span className="text-[9px] text-white/80 font-medium tracking-wider uppercase leading-none">Catatan Keuangan</span>
+                  </div>
+                </div>
                 <button onClick={() => setDrawerOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition active:scale-95">
                   <X className="w-5 h-5" />
                 </button>

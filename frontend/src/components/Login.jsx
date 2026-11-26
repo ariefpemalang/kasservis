@@ -86,11 +86,14 @@ export default function Login() {
 
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-white/20">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30">
-            <BookOpen className="w-9 h-9 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Buku Kas Digital</h1>
-          <p className="text-xs text-slate-500 mt-1">Realtime Supabase • WiFi, Servis & Pribadi</p>
+          <img 
+            src="/logo.webp" 
+            alt="SaldoKu - Catatan Keuangan" 
+            className="w-24 h-24 object-contain rounded-3xl mx-auto mb-3 shadow-xl border-2 border-amber-100" 
+          />
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">SaldoKu</h1>
+          <p className="text-xs font-bold text-amber-600 tracking-widest uppercase mt-0.5">CATATAN KEUANGAN</p>
+          <p className="text-[11px] text-slate-400 mt-1 font-medium">WiFi • Servis • Kas Pribadi</p>
         </div>
 
         {error && (
