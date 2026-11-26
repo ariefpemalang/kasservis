@@ -23,6 +23,11 @@ export default function App() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [bottomNavTab, setBottomNavTab] = useState('RIWAYAT');
 
+  const [filterType, setFilterType] = useState('ALL'); // ALL, INCOME, EXPENSE
+  const [search, setSearch] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
   // Mengatur startDate & endDate otomatis berdasarkan bulan yang dipilih
   const handleChangeMonth = (year, month) => {
     setSelectedYear(year);
