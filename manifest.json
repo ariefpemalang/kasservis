@@ -3,24 +3,26 @@
   "name": "SaldoKu - Catatan Keuangan",
   "icons": [
     {
-      "src": "/logo.webp",
+      "src": "./logo.webp",
       "type": "image/webp",
-      "sizes": "512x512"
+      "sizes": "1024x1024"
     },
     {
-      "src": "/icon-192.png",
+      "src": "./icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "./icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "/",
+  "start_url": "./",
   "background_color": "#ffffff",
-  "theme_color": "#f59e0b",
+  "theme_color": "#edbf1d",
   "display": "standalone",
   "orientation": "portrait"
 }
