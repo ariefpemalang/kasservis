@@ -247,15 +247,17 @@ export default function ReportModal({ isOpen, onClose, transactions: initialTran
       <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Header */}
-        <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-emerald-400" />
+        <div className="p-4 bg-white border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <PieChart className="w-4 h-4" />
+            </div>
             <div>
-              <h2 className="font-bold text-sm leading-tight">Laporan & Rekap Kas</h2>
-              <p className="text-[10px] text-slate-400">Analisis per Kategori & Ekspor Data</p>
+              <h2 className="font-bold text-sm text-slate-900 leading-tight">Laporan & Rekap Kas</h2>
+              <p className="text-[11px] text-slate-500">Analisis per Kategori & Ekspor Data</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full transition">
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -280,7 +282,7 @@ export default function ReportModal({ isOpen, onClose, transactions: initialTran
                 type="button"
                 onClick={() => setSelectedBook('WIFI')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition ${
-                  selectedBook === 'WIFI' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200'
+                  selectedBook === 'WIFI' ? 'bg-pink-600 text-white shadow-xs' : 'bg-white text-slate-600 border border-slate-200'
                 }`}
               >
                 <Wifi className="w-3.5 h-3.5" />
@@ -395,19 +397,19 @@ export default function ReportModal({ isOpen, onClose, transactions: initialTran
         {/* Main Content Area */}
         <div className="p-4 overflow-y-auto space-y-4 flex-1">
           
-          {/* Ringkasan Finansial Card */}
-          <div className="grid grid-cols-3 gap-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white p-3 rounded-2xl shadow-sm text-center">
+          {/* Ringkasan Finansial Card (Putih Bersih) */}
+          <div className="grid grid-cols-3 gap-2 bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs text-center">
             <div>
-              <p className="text-[10px] text-emerald-300 uppercase font-semibold">Pemasukan (+)</p>
-              <p className="text-xs sm:text-sm font-bold text-emerald-400 mt-0.5">{formatRupiah(totalIncome)}</p>
+              <p className="text-[10px] text-emerald-700 uppercase font-semibold">Pemasukan (+)</p>
+              <p className="text-xs sm:text-sm font-bold text-emerald-600 mt-0.5">{formatRupiah(totalIncome)}</p>
             </div>
-            <div className="border-x border-white/10">
-              <p className="text-[10px] text-rose-300 uppercase font-semibold">Pengeluaran (-)</p>
-              <p className="text-xs sm:text-sm font-bold text-rose-400 mt-0.5">{formatRupiah(totalExpense)}</p>
+            <div className="border-x border-slate-200">
+              <p className="text-[10px] text-rose-700 uppercase font-semibold">Pengeluaran (-)</p>
+              <p className="text-xs sm:text-sm font-bold text-rose-600 mt-0.5">{formatRupiah(totalExpense)}</p>
             </div>
             <div>
-              <p className="text-[10px] text-slate-300 uppercase font-semibold">Laba / Sisa</p>
-              <p className={`text-xs sm:text-sm font-bold mt-0.5 ${balance >= 0 ? 'text-emerald-300' : 'text-rose-400'}`}>
+              <p className="text-[10px] text-slate-500 uppercase font-semibold">Laba / Sisa</p>
+              <p className={`text-xs sm:text-sm font-bold mt-0.5 ${balance >= 0 ? 'text-blue-600' : 'text-rose-600'}`}>
                 {formatRupiah(balance)}
               </p>
             </div>

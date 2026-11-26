@@ -228,9 +228,9 @@ export default function HeaderCard({
           <div className="relative w-72 max-w-[85vw] bg-white text-slate-800 h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
             
             {/* Header Drawer */}
-            <div className="p-4 bg-gradient-to-r from-blue-600 to-sky-600 text-white">
+            <div className={`p-4 ${currentBook === 'WIFI' ? 'bg-gradient-to-r from-pink-600 via-rose-500 to-pink-500' : (currentTheme?.headerGradient || 'from-blue-600 to-sky-600')} text-white`}>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs uppercase font-bold tracking-wider text-sky-200">Buku Kas & Servis</span>
+                <span className="text-xs uppercase font-bold tracking-wider text-white/80">Buku Kas & Servis</span>
                 <button onClick={() => setDrawerOpen(false)} className="p-1 hover:bg-white/20 rounded-full">
                   <X className="w-5 h-5" />
                 </button>
@@ -270,17 +270,17 @@ export default function HeaderCard({
                     <button
                       onClick={() => { setCurrentBook('WIFI'); setDrawerOpen(false); }}
                       className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'WIFI' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'hover:bg-slate-50 text-slate-700'
+                        currentBook === 'WIFI' ? 'bg-pink-50 text-pink-700 border border-pink-200' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <Wifi className="w-4 h-4 text-blue-500" />
+                      <Wifi className="w-4 h-4 text-pink-500" />
                       <span>Buku Kas WiFi</span>
                     </button>
 
                     <button
                       onClick={() => { setCurrentBook('PRIBADI'); setDrawerOpen(false); }}
                       className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'PRIBADI' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'hover:bg-slate-50 text-slate-700'
+                        currentBook === 'PRIBADI' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
                       <User className="w-4 h-4 text-purple-500" />
