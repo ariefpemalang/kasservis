@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Aplikasi Buku Kas Realtime WiFi, Servis, dan Pribadi",
   "scripts": {
+    "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "cap:sync": "npx cap sync android",
     "cap:build": "npm run build && npx cap sync android",
