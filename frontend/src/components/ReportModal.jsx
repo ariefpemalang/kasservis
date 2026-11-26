@@ -544,35 +544,7 @@ export default function ReportModal({ isOpen, onClose, transactions: initialTran
 
         </div>
 
-        {/* Footer: Tombol Ekspor & Cetak */}
-        <div className="p-3 bg-slate-100 border-t border-slate-200 flex items-center gap-2">
-          <button
-            onClick={exportCategoryCSV}
-            className="flex-1 py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.98]"
-            title="Ekspor Rekap Kategori ke Excel / CSV"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Ekspor Kategori (Excel)</span>
-          </button>
-
-          <button
-            onClick={exportAllTransactionsCSV}
-            className="py-2.5 px-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.98]"
-            title="Ekspor Rincian Semua Transaksi"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-            <span className="hidden sm:inline">Rincian CSV</span>
-          </button>
-
-          <button
-            onClick={handlePrint}
-            className="p-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition"
-            title="Cetak Halaman Ini"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
-        </div>
-
+        {/* Footer: Tombol Ekspor & Cetak disembunyikan sesuai permintaan */}
       </div>
     </div>
   );

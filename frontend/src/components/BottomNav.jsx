@@ -32,18 +32,7 @@ export default function BottomNav({
           <span className="text-[10px] mt-0.5">Riwayat</span>
         </button>
 
-        {/* Tab 2: Grafik */}
-        <button
-          onClick={() => {
-            if (onOpenCategoryReport) onOpenCategoryReport();
-          }}
-          className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 transition"
-        >
-          <PieChart className="w-5 h-5 stroke-[2]" />
-          <span className="text-[10px] mt-0.5">Grafik</span>
-        </button>
-
-        {/* Tab 3: Center Elevated Floating [+] Button */}
+        {/* Tab 2: Center Elevated Floating [+] Button */}
         <div className="flex-1 flex justify-center -mt-6">
           <button
             onClick={onAddNew}
@@ -54,7 +43,7 @@ export default function BottomNav({
           </button>
         </div>
 
-        {/* Tab 4: Laporan */}
+        {/* Tab 3: Laporan */}
         <button
           onClick={() => {
             if (onOpenReport) onOpenReport();
