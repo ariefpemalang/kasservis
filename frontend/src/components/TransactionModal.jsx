@@ -432,7 +432,7 @@ export default function TransactionModal({
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
       <div className="bg-white text-slate-800 w-full sm:max-w-md h-[95vh] sm:h-auto sm:max-h-[90vh] sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
         
-        {/* TOP BAR: Batalkan | Tambahkan [Badge Buku] | Simpan */}
+        {/* TOP BAR: Batalkan | Tambahkan | Simpan (Hitam) */}
         <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between bg-white">
           <button 
             type="button" 
@@ -442,20 +442,15 @@ export default function TransactionModal({
             Batalkan
           </button>
           
-          <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-slate-900">
-              {editingTx ? 'Ubah Catatan' : 'Tambahkan'}
-            </h2>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${themeStyles.headerBadge}`}>
-              {themeStyles.bookName}
-            </span>
-          </div>
+          <h2 className="text-base font-bold text-slate-900">
+            {editingTx ? 'Ubah Catatan' : 'Tambahkan'}
+          </h2>
 
           <button
             type="button"
             onClick={handleSubmit}
             disabled={loading || uploading}
-            className={`text-sm font-bold ${themeStyles.textAccent} ${themeStyles.textAccentHover} disabled:opacity-50 transition`}
+            className="text-sm font-bold text-slate-900 hover:text-black disabled:opacity-50 transition"
           >
             {loading ? 'Menyimpan...' : 'Simpan'}
           </button>
