@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { saveSupabaseConfig, getSupabaseConfig } from '../supabaseClient';
-import { Database, Key, Globe, ArrowRight } from 'lucide-react';
+import { Database, Key, Globe, ArrowRight, X } from 'lucide-react';
 
 export default function SupabaseSetupModal({ isOpen, onClose }) {
   const current = getSupabaseConfig();
@@ -25,8 +25,24 @@ export default function SupabaseSetupModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border border-slate-200">
+    <div 
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && onClose) onClose();
+      }}
+    >
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border border-slate-200 relative animate-in fade-in zoom-in-95">
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-4 top-4 p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition"
+            title="Kembali"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         <div className="text-center mb-5">
           <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-500/30 text-white">
             <Database className="w-8 h-8" />
@@ -80,13 +96,24 @@ export default function SupabaseSetupModal({ isOpen, onClose }) {
             <p className="text-[10px] text-slate-400 mt-1">Ditemukan di Supabase: Project Settings - API - Project API Keys (anon public)</p>
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 mt-4 transition"
-          >
-            <span>Simpan & Hubungkan</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 pt-2">
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-1/3 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition text-center"
+              >
+                Kembali
+              </button>
+            )}
+            <button
+              type="submit"
+              className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition"
+            >
+              <span>Simpan & Hubungkan</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </form>
       </div>
     </div>
