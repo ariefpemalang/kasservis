@@ -28,16 +28,17 @@ Aplikasi **Buku Kas Digital** (WiFi, Servis, dan Pribadi) yang kini menggunakan 
 
 ---
 
-### Langkah 3: Deploy di aaPanel Proxmox (Tanpa Perlu Node.js!)
+### Langkah 3: Deploy di aaPanel (Domain: arbook.my.id)
 Karena aplikasi sudah menggunakan Supabase, di aaPanel Anda **cukup membuat Website Biasa (Static / HTML)**:
 
 1. Buka dashboard **aaPanel**.
 2. Masuk ke menu **Website** → Klik **Add site**:
-   - **Domain name**: Masukkan IP server Anda atau domain (misal: `192.168.1.100:8080` atau `kas.domainanda.com`).
+   - **Domain name**: Masukkan `arbook.my.id` (dan `www.arbook.my.id`).
    - **PHP version**: Pilih **Pure / Static** (atau versi PHP berapa saja bebas).
-3. Buka menu **Files** di aaPanel, masuk ke folder website tersebut (misal `/www/wwwroot/kas.domainanda.com`).
-4. Upload semua file yang ada di dalam folder **`frontend/dist`** proyek ini ke dalam folder website tersebut.
-5. Selesai! Buka website tersebut di browser HP atau PC Anda.
+3. Buka menu **SSL** pada domain `arbook.my.id` di aaPanel, lalu klik **Apply** menggunakan Let's Encrypt (pastikan DNS domain sudah mengarah ke IP VPS).
+4. Masuk ke folder website tersebut (misal `/www/wwwroot/arbook.my.id`).
+5. Ekstrak file **`bukukas_dist.zip`** atau upload semua file dari folder **`frontend/dist`** proyek ini.
+6. Selesai! Buka **https://arbook.my.id** di browser HP atau PC Anda.
 
 ---
 
