@@ -13,12 +13,27 @@ import SupabaseSetupModal from './components/SupabaseSetupModal';
 import ThemeModal from './components/ThemeModal';
 import CalendarModal from './components/CalendarModal';
 import { getCurrentTheme, getStoredPribadiTheme, savePribadiTheme } from './utils/theme';
+import { getStoredFontSize, applyFontSize } from './utils/fontSize';
 
 export default function App() {
   const { user, profile, loading: authLoading, isOwner, isKasir, isTeknisi } = useAuth();
 
   const [configModalOpen, setConfigModalOpen] = useState(!isSupabaseConfigured());
-  const [currentBook, setCurrentBook] = useState('SERVIS');
+  const [currentBook, setCurrentBook] = useState('PRIBADI');
+
+  // Pengaturan ukuran font (disimpan per role)
+  const [fontSize, setFontSize] = useState(() => getStoredFontSize(profile?.role));
+
+  useEffect(() => {
+    const currentSize = getStoredFontSize(profile?.role);
+    setFontSize(currentSize);
+    applyFontSize(currentSize, profile?.role);
+  }, [profile?.role]);
+
+  const handleChangeFontSize = (newSize) => {
+    setFontSize(newSize);
+    applyFontSize(newSize, profile?.role);
+  };
 
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
@@ -71,13 +86,21 @@ export default function App() {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
+  // Otomatis masuk ke menu/buku kas masing-masing saat aplikasi dibuka atau login:
+  // - Admin (Owner): otomatis ke Buku Kas Pribadi (PRIBADI)
+  // - Teknisi: otomatis ke Buku Kas Servis (SERVIS)
+  // - Kasir: otomatis ke Buku Kas WiFi (WIFI)
   useEffect(() => {
     if (profile) {
-      if (isKasir) setCurrentBook('WIFI');
-      else if (isTeknisi) setCurrentBook('SERVIS');
-      else if (isOwner && currentBook === 'ALL') setCurrentBook('SERVIS');
+      if (isOwner) {
+        setCurrentBook('PRIBADI');
+      } else if (isKasir) {
+        setCurrentBook('WIFI');
+      } else if (isTeknisi) {
+        setCurrentBook('SERVIS');
+      }
     }
-  }, [profile, isKasir, isTeknisi, isOwner]);
+  }, [profile?.id, profile?.role, isOwner, isKasir, isTeknisi]);
 
   const fetchData = useCallback(async () => {
     if (!user || !supabase) return;
@@ -252,6 +275,8 @@ export default function App() {
           currentBook={currentBook}
           setCurrentBook={setCurrentBook}
           currentTheme={currentTheme}
+          fontSize={fontSize}
+          onChangeFontSize={handleChangeFontSize}
           summary={summary}
           realtimeConnected={realtimeConnected}
           selectedYear={selectedYear}

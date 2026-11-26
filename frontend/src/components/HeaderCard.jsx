@@ -16,8 +16,10 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Palette
+  Palette,
+  Type
 } from 'lucide-react';
+import { FONT_SIZES } from '../utils/fontSize';
 
 const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
@@ -28,6 +30,8 @@ export default function HeaderCard({
   currentBook, 
   setCurrentBook, 
   currentTheme,
+  fontSize,
+  onChangeFontSize,
   summary, 
   realtimeConnected,
   selectedYear,
@@ -324,6 +328,47 @@ export default function HeaderCard({
               {/* Menu Lain */}
               <div>
                 <p className="font-bold text-slate-400 text-[10px] uppercase tracking-wider mb-2">Pengaturan & Fitur</p>
+
+                {/* Pengaturan Ukuran Font (Tersedia untuk Admin, Teknisi, dan Kasir) */}
+                <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 mb-3 shadow-xs">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600">
+                        <Type className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800 text-xs leading-none">Ukuran Font</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Kenyamanan membaca</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                      {FONT_SIZES.find(f => f.id === fontSize)?.label || 'Normal'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-1.5 mt-2.5">
+                    {FONT_SIZES.map((item) => {
+                      const isActive = fontSize === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => onChangeFontSize && onChangeFontSize(item.id)}
+                          className={`py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center transition-all ${
+                            isActive
+                              ? 'bg-amber-500 text-white font-bold shadow-xs scale-[1.03] ring-2 ring-amber-400/40'
+                              : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 active:scale-95'
+                          }`}
+                          title={`Ubah ukuran font ke ${item.label}`}
+                        >
+                          <span className="text-xs font-black tracking-tight">{item.badge}</span>
+                          <span className="text-[9px] mt-0.5 font-medium leading-none truncate w-full">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   {/* Pilihan Tema Pribadi jika di Buku Pribadi */}
                   {currentBook === 'PRIBADI' && (
