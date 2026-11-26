@@ -67,6 +67,28 @@ BEGIN
   CREATE POLICY "bukukas_transactions_all" ON public.bukukas_transactions FOR ALL TO public USING (true) WITH CHECK (true);
 END $$;
 
+-- 6. Tabel Settings untuk Pengaturan & Kategori Realtime
+CREATE TABLE IF NOT EXISTS public.settings (
+  id TEXT PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  DROP POLICY IF EXISTS "settings_all" ON public.settings;
+  CREATE POLICY "settings_all" ON public.settings FOR ALL TO public USING (true) WITH CHECK (true);
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'settings'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.settings;
+  END IF;
+END $$;
+
 -- ========================================================
--- SELESAI! Tabel bukukas_transactions & bukukas_profiles siap.
+-- SELESAI! Tabel bukukas_transactions, bukukas_profiles, dan settings siap realtime.
 -- ========================================================

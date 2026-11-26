@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
-import { getStoredCategories } from '../utils/categories';
+import { getStoredCategories, subscribeToCategories } from '../utils/categories';
 import { parseSmartInput } from '../utils/aiParser';
 import { 
   X, 
@@ -118,9 +118,20 @@ export default function TransactionModal({
     }
   }, []);
 
+  const [allCategories, setAllCategories] = useState(getStoredCategories());
+
+  useEffect(() => {
+    if (isOpen) {
+      setAllCategories(getStoredCategories());
+    }
+    const unsubscribe = subscribeToCategories((newCats) => {
+      setAllCategories({ ...newCats });
+    });
+    return unsubscribe;
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  const allCategories = getStoredCategories();
   const activeCategories = (allCategories[book] && allCategories[book][type]) || [];
 
   // Tema Dinamis Khusus Modal Transaksi (Latar Belakang Putih Bersih):

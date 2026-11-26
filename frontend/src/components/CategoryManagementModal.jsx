@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
   getStoredCategories, 
   addCategory, 
   deleteCategory, 
+  resetCategoriesToDefault,
+  fetchRemoteCategories,
+  subscribeToCategories,
   DEFAULT_CATEGORIES 
 } from '../utils/categories';
 import { 
@@ -24,30 +27,59 @@ export default function CategoryManagementModal({ isOpen, onClose, onCategoriesC
   const [selectedBook, setSelectedBook] = useState('WIFI');
   const [selectedType, setSelectedType] = useState('INCOME');
   const [newCatName, setNewCatName] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setCategories(getStoredCategories());
+      fetchRemoteCategories().then((cats) => {
+        if (cats) setCategories({ ...cats });
+      });
+    }
+    const unsubscribe = subscribeToCategories((newCats) => {
+      setCategories({ ...newCats });
+    });
+    return unsubscribe;
+  }, [isOpen]);
 
   if (!isOpen || !isOwner) return null;
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
 
-    const updated = addCategory(selectedBook, selectedType, newCatName.trim());
-    setCategories({ ...updated });
-    setNewCatName('');
-    if (onCategoriesChanged) onCategoriesChanged();
+    setSaving(true);
+    try {
+      const updated = await addCategory(selectedBook, selectedType, newCatName.trim());
+      setCategories({ ...updated });
+      setNewCatName('');
+      if (onCategoriesChanged) onCategoriesChanged();
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDelete = (cat) => {
-    const updated = deleteCategory(selectedBook, selectedType, cat);
-    setCategories({ ...updated });
-    if (onCategoriesChanged) onCategoriesChanged();
+  const handleDelete = async (cat) => {
+    setSaving(true);
+    try {
+      const updated = await deleteCategory(selectedBook, selectedType, cat);
+      setCategories({ ...updated });
+      if (onCategoriesChanged) onCategoriesChanged();
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleResetDefaults = () => {
+  const handleResetDefaults = async () => {
     if (!window.confirm('Kembalikan semua kategori ke pengaturan bawaan?')) return;
-    localStorage.removeItem('bukukas_custom_categories');
-    setCategories(DEFAULT_CATEGORIES);
-    if (onCategoriesChanged) onCategoriesChanged();
+    setSaving(true);
+    try {
+      const def = await resetCategoriesToDefault();
+      setCategories({ ...def });
+      if (onCategoriesChanged) onCategoriesChanged();
+    } finally {
+      setSaving(false);
+    }
   };
 
   const currentList = categories[selectedBook]?.[selectedType] || [];
