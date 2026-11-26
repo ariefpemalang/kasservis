@@ -39,7 +39,8 @@ export default function HeaderCard({
   onOpenUserMgmt,
   onOpenConfig,
   onOpenCategories,
-  onOpenThemeModal
+  onOpenThemeModal,
+  onOpenCalendar
 }) {
   const { profile, logout, isOwner, isKasir, isTeknisi } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -116,11 +117,14 @@ export default function HeaderCard({
             <Search className="w-5 h-5" />
           </button>
 
-          {/* Tombol Kalender / Pemilih Bulan */}
+          {/* Tombol Kalender Transaksi (Kanan Atas) */}
           <button 
-            onClick={() => setMonthPickerOpen(!monthPickerOpen)}
-            className={`p-2 rounded-full transition ${monthPickerOpen ? 'bg-white/30 text-white' : 'hover:bg-white/15 text-white/90'}`}
-            title="Pilih Bulan"
+            onClick={() => {
+              if (onOpenCalendar) onOpenCalendar();
+              else setMonthPickerOpen(!monthPickerOpen);
+            }}
+            className="p-2 rounded-full hover:bg-white/15 text-white/90 transition active:scale-95"
+            title="Buka Kalender Transaksi"
           >
             <Calendar className="w-5 h-5" />
           </button>

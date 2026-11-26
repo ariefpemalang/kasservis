@@ -11,6 +11,7 @@ import CategoryManagementModal from './components/CategoryManagementModal';
 import BottomNav from './components/BottomNav';
 import SupabaseSetupModal from './components/SupabaseSetupModal';
 import ThemeModal from './components/ThemeModal';
+import CalendarModal from './components/CalendarModal';
 import { getCurrentTheme, getStoredPribadiTheme, savePribadiTheme } from './utils/theme';
 
 export default function App() {
@@ -68,6 +69,7 @@ export default function App() {
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -262,6 +264,7 @@ export default function App() {
           onOpenConfig={() => setConfigModalOpen(true)}
           onOpenCategories={() => setCategoryModalOpen(true)}
           onOpenThemeModal={() => setThemeModalOpen(true)}
+          onOpenCalendar={() => setCalendarOpen(true)}
         />
 
         <TransactionList
@@ -329,6 +332,27 @@ export default function App() {
           onClose={() => setThemeModalOpen(false)}
           selectedTheme={pribadiTheme}
           onSelectTheme={handleSelectPribadiTheme}
+        />
+
+        <CalendarModal
+          isOpen={calendarOpen}
+          onClose={() => setCalendarOpen(false)}
+          currentBook={currentBook}
+          currentTheme={currentTheme}
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onChangeMonth={handleChangeMonth}
+          transactions={transactions}
+          onAddNew={() => {
+            setEditingTx(null);
+            setModalType('EXPENSE');
+            setTxModalOpen(true);
+          }}
+          onEditTransaction={(tx) => {
+            setEditingTx(tx);
+            setModalType(tx.type === 'in' || tx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
+            setTxModalOpen(true);
+          }}
         />
 
         <SupabaseSetupModal
