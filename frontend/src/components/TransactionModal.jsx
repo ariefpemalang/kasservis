@@ -1,44 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient';
 import { getStoredCategories } from '../utils/categories';
+import { parseSmartInput } from '../utils/aiParser';
 import { 
   X, 
-  ArrowDownLeft, 
-  ArrowUpRight, 
+  Mic, 
+  MicOff, 
   Camera, 
   Check, 
-  Wifi, 
-  Wrench, 
-  User 
+  ArrowRight,
+  Coffee,
+  Receipt,
+  PiggyBank,
+  Heart,
+  ShoppingCart,
+  Utensils,
+  GraduationCap,
+  Bus,
+  Users,
+  Shirt,
+  Wine,
+  Activity,
+  Wrench,
+  Smile,
+  Plus,
+  Wifi,
+  Smartphone,
+  DollarSign,
+  Send
 } from 'lucide-react';
 
 export default function TransactionModal({ 
   isOpen, 
   onClose, 
-  initialType = 'INCOME', 
-  currentBook = 'WIFI', 
+  initialType = 'EXPENSE', 
+  currentBook = 'SERVIS', 
   editingTx = null, 
-  onSuccess 
+  onSuccess,
+  currentTheme
 }) {
   const { user, profile, isOwner, isKasir, isTeknisi } = useAuth();
+  const fileInputRef = useRef(null);
 
   const [type, setType] = useState(initialType);
-  const [book, setBook] = useState(currentBook === 'ALL' ? 'WIFI' : currentBook);
+  const [book, setBook] = useState(currentBook === 'ALL' ? 'SERVIS' : currentBook);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-  const [customCategory, setCustomCategory] = useState('');
   const [notes, setNotes] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [receiptUrl, setReceiptUrl] = useState('');
+  
+  // State Bilah AI
+  const [aiText, setAiText] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(true);
+
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Icon mapping untuk kategori
+  const getCatIcon = (name) => {
+    const n = (name || '').toLowerCase();
+    if (n.includes('makan') || n.includes('kuliner') || n.includes('warung')) return <Utensils className="w-5 h-5" />;
+    if (n.includes('minum') || n.includes('kopi')) return <Wine className="w-5 h-5" />;
+    if (n.includes('trans') || n.includes('bensin') || n.includes('bbm')) return <Bus className="w-5 h-5" />;
+    if (n.includes('belanja') || n.includes('pasar') || n.includes('part')) return <ShoppingCart className="w-5 h-5" />;
+    if (n.includes('tagihan') || n.includes('pajak') || n.includes('listrik')) return <Receipt className="w-5 h-5" />;
+    if (n.includes('nabung') || n.includes('invest')) return <PiggyBank className="w-5 h-5" />;
+    if (n.includes('kluarga') || n.includes('keluarga') || n.includes('sangu')) return <Heart className="w-5 h-5" />;
+    if (n.includes('anak') || n.includes('adek')) return <Smile className="w-5 h-5" />;
+    if (n.includes('perbaikan') || n.includes('servis') || n.includes('alat')) return <Wrench className="w-5 h-5" />;
+    if (n.includes('wifi') || n.includes('internet')) return <Wifi className="w-5 h-5" />;
+    if (n.includes('hp') || n.includes('laptop')) return <Smartphone className="w-5 h-5" />;
+    if (n.includes('gaji') || n.includes('omset') || n.includes('pendapatan')) return <DollarSign className="w-5 h-5" />;
+    if (n.includes('sekolah') || n.includes('didik')) return <GraduationCap className="w-5 h-5" />;
+    if (n.includes('sehat') || n.includes('obat')) return <Activity className="w-5 h-5" />;
+    if (n.includes('pakaian') || n.includes('baju')) return <Shirt className="w-5 h-5" />;
+    return <Coffee className="w-5 h-5" />;
+  };
+
   useEffect(() => {
     if (editingTx) {
       setType(editingTx.type === 'in' || editingTx.type === 'INCOME' ? 'INCOME' : 'EXPENSE');
-      setBook(editingTx.book || 'WIFI');
+      setBook(editingTx.book || 'SERVIS');
       setAmount(editingTx.amount.toString());
       setCategory(editingTx.category);
       setNotes(editingTx.notes || '');
@@ -48,20 +94,100 @@ export default function TransactionModal({
       setType(initialType);
       if (isKasir) setBook('WIFI');
       else if (isTeknisi) setBook('SERVIS');
-      else setBook(currentBook === 'ALL' ? 'WIFI' : currentBook);
+      else setBook(currentBook === 'ALL' ? 'SERVIS' : currentBook);
 
       setAmount('');
       setCategory('');
-      setCustomCategory('');
       setNotes('');
       setDate(new Date().toISOString().slice(0, 10));
       setReceiptUrl('');
+      setAiText('');
     }
     setError('');
   }, [isOpen, editingTx, initialType, currentBook, isKasir, isTeknisi]);
 
+  // Cek dukungan Web Speech API
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceSupported(false);
+    }
+  }, []);
+
   if (!isOpen) return null;
 
+  const allCategories = getStoredCategories();
+  const activeCategories = (allCategories[book] && allCategories[book][type]) || [];
+
+  // Jalankan AI Parsing saat pengguna mengetik atau selesai voice
+  const handleApplyAiText = (inputStr) => {
+    const targetText = inputStr || aiText;
+    if (!targetText.trim()) return;
+
+    const parsed = parseSmartInput(targetText, activeCategories);
+    if (parsed) {
+      if (parsed.amount > 0) {
+        setAmount(parsed.amount.toString());
+      }
+      if (parsed.type) {
+        setType(parsed.type);
+      }
+      if (parsed.category) {
+        setCategory(parsed.category);
+      }
+      if (parsed.notes) {
+        setNotes(parsed.notes);
+      }
+    }
+  };
+
+  // Voice Input Handler (Speech-to-Text Bahasa Indonesia)
+  const toggleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Browser Anda belum mendukung input suara. Anda dapat mengetik di bilah AI.');
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID'; // Bahasa Indonesia
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setAiText(transcript);
+        handleApplyAiText(transcript);
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.error(err);
+      setIsListening(false);
+    }
+  };
+
+  // Upload Foto Struk
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !supabase) return;
@@ -91,18 +217,18 @@ export default function TransactionModal({
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setError('');
 
-    const finalCategory = customCategory.trim() || category;
+    const finalCategory = category.trim();
     if (!finalCategory) {
-      setError('Pilih atau ketik kategori transaksi.');
+      setError('Pilih salah satu kategori transaksi di atas.');
       return;
     }
 
     const numericAmount = parseFloat(amount.replace(/[^0-9]/g, ''));
     if (!numericAmount || numericAmount <= 0) {
-      setError('Nominal harus lebih dari 0.');
+      setError('Nominal harus diisi lebih dari 0.');
       return;
     }
 
@@ -114,7 +240,7 @@ export default function TransactionModal({
         type: dbType,
         amount: numericAmount,
         category: finalCategory,
-        notes: notes.trim() || '',
+        notes: notes.trim() || aiText.trim() || '',
         date: date,
         book: book,
         payment_method: 'Tunai',
@@ -148,233 +274,201 @@ export default function TransactionModal({
     }
   };
 
-  const allCategories = getStoredCategories();
-  const activeCategories = (allCategories[book] && allCategories[book][type]) || [];
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom">
-        <div className={`p-4 flex items-center justify-between text-white ${type === 'INCOME' ? 'bg-emerald-600' : 'bg-rose-600'}`}>
-          <div className="flex items-center gap-2">
-            {type === 'INCOME' ? <ArrowDownLeft className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-            <span className="font-bold text-sm tracking-tight">
-              {editingTx ? 'Ubah Catatan' : type === 'INCOME' ? 'Catat Pemasukan (+)' : 'Catat Pengeluaran (-)'}
-            </span>
-          </div>
-          <button onClick={onClose} className="p-1 hover:bg-black/20 rounded-full transition">
-            <X className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+      <div className="bg-[#181818] text-white w-full sm:max-w-md h-[95vh] sm:h-auto sm:max-h-[90vh] sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border border-zinc-800">
+        
+        {/* TOP BAR: Batalkan | Tambahkan | Simpan */}
+        <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
+          <button 
+            type="button" 
+            onClick={onClose}
+            className="text-sm font-semibold text-zinc-400 hover:text-white transition"
+          >
+            Batalkan
+          </button>
+          
+          <h2 className="text-base font-bold text-white">
+            {editingTx ? 'Ubah Catatan' : 'Tambahkan'}
+          </h2>
+
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading || uploading}
+            className="text-sm font-bold text-amber-400 hover:text-amber-300 disabled:opacity-50 transition"
+          >
+            {loading ? 'Menyimpan...' : 'Simpan'}
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
-          {error && (
-            <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
-              {error}
-            </div>
-          )}
+        {/* SEGMENTED CONTROL: Pengeluaran | Pemasukan */}
+        <div className="px-4 pt-3">
+          <div className="bg-[#242424] p-1 rounded-xl flex items-center border border-zinc-800">
+            <button
+              type="button"
+              onClick={() => setType('EXPENSE')}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                type === 'EXPENSE' ? 'bg-white text-black shadow-sm' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Pengeluaran
+            </button>
+            <button
+              type="button"
+              onClick={() => setType('INCOME')}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
+                type === 'INCOME' ? 'bg-white text-black shadow-sm' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Pemasukan
+            </button>
+          </div>
+        </div>
 
-          {!editingTx && (
-            <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setType('INCOME')}
-                className={`py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${
-                  type === 'INCOME' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600'
-                }`}
-              >
-                <ArrowDownLeft className="w-4 h-4" />
-                Pemasukan
-              </button>
-              <button
-                type="button"
-                onClick={() => setType('EXPENSE')}
-                className={`py-2 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 ${
-                  type === 'EXPENSE' ? 'bg-rose-600 text-white shadow' : 'text-slate-600'
-                }`}
-              >
-                <ArrowUpRight className="w-4 h-4" />
-                Pengeluaran
-              </button>
-            </div>
-          )}
-
-          {isOwner && !editingTx && (
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Pilih Buku Kas
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setBook('WIFI')}
-                  className={`py-2 px-1 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition ${
-                    book === 'WIFI' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-600'
-                  }`}
-                >
-                  <Wifi className="w-4 h-4 text-blue-600" />
-                  Buku WiFi
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBook('SERVIS')}
-                  className={`py-2 px-1 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition ${
-                    book === 'SERVIS' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-600'
-                  }`}
-                >
-                  <Wrench className="w-4 h-4 text-amber-600" />
-                  Buku Servis
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBook('PRIBADI')}
-                  className={`py-2 px-1 text-xs font-semibold rounded-xl border flex flex-col items-center gap-1 transition ${
-                    book === 'PRIBADI' ? 'border-purple-500 bg-purple-50 text-purple-700' : 'border-slate-200 text-slate-600'
-                  }`}
-                >
-                  <User className="w-4 h-4 text-purple-600" />
-                  Buku Pribadi
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-              Nominal (Rp)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-base">
-                Rp
-              </span>
-              <input
-                type="text"
-                required
-                autoFocus
-                placeholder="0"
-                value={amount ? Number(amount.replace(/[^0-9]/g, '')).toLocaleString('id-ID') : ''}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/[^0-9]/g, '');
-                  setAmount(raw);
-                }}
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xl font-bold font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
-              />
-            </div>
+        {/* INPUT NOMINAL BESAR */}
+        <div className="px-4 pt-3 pb-1 text-center">
+          <div className="inline-flex items-baseline gap-1">
+            <span className="text-lg font-bold text-zinc-400">Rp</span>
+            <input
+              type="text"
+              autoFocus
+              placeholder="0"
+              value={amount ? Number(amount.replace(/[^0-9]/g, '')).toLocaleString('id-ID') : ''}
+              onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))}
+              className="text-3xl font-extrabold font-mono bg-transparent text-white focus:outline-none text-center max-w-[240px] tracking-tight placeholder-zinc-600"
+            />
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-              Kategori
-            </label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {activeCategories.map((cat) => (
+          {/* Sub info ringkas (Kategori terpilih / Catatan) */}
+          <div className="flex items-center justify-center gap-2 mt-1 text-[11px] text-zinc-400">
+            <span className={category ? 'text-amber-400 font-semibold' : 'text-zinc-500'}>
+              {category ? `Kategori: ${category}` : 'Pilih kategori di bawah'}
+            </span>
+            {notes && <span>• {notes}</span>}
+            {receiptUrl && (
+              <span className="text-emerald-400 flex items-center gap-0.5">
+                <Check className="w-3 h-3" /> Ada Struk
+              </span>
+            )}
+          </div>
+
+          {error && (
+            <p className="text-rose-400 text-xs mt-1.5 font-medium">{error}</p>
+          )}
+        </div>
+
+        {/* GRID ICON KATEGORI PERSIS SEPERTI GAMBAR */}
+        <div className="px-4 py-2 overflow-y-auto flex-1">
+          <div className="grid grid-cols-4 gap-y-4 gap-x-2 pt-2 pb-4">
+            {activeCategories.map((cat) => {
+              const isSelected = category === cat;
+              return (
                 <button
                   key={cat}
                   type="button"
-                  onClick={() => {
-                    setCategory(cat);
-                    setCustomCategory('');
-                  }}
-                  className={`text-[11px] px-2.5 py-1.5 rounded-lg border transition ${
-                    category === cat && !customCategory
-                      ? 'bg-emerald-600 text-white border-emerald-600 font-semibold shadow-sm'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'
-                  }`}
+                  onClick={() => setCategory(cat)}
+                  className="flex flex-col items-center gap-1.5 group active:scale-95 transition-transform"
                 >
-                  {cat}
+                  <div className={`w-13 h-13 rounded-full flex items-center justify-center transition border ${
+                    isSelected 
+                      ? 'bg-amber-400 text-black border-amber-300 shadow-lg shadow-amber-400/20' 
+                      : 'bg-[#252525] text-zinc-300 border-zinc-700/80 group-hover:border-zinc-500'
+                  }`}>
+                    {getCatIcon(cat)}
+                  </div>
+                  <span className={`text-[11px] text-center line-clamp-1 max-w-[70px] ${
+                    isSelected ? 'text-amber-400 font-bold' : 'text-zinc-400 font-medium'
+                  }`}>
+                    {cat}
+                  </span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+        </div>
 
+        {/* BILAH AI FLOATING PALING BAWAH (Voice + Foto Struk) */}
+        <div className="p-3 bg-[#181818] border-t border-zinc-800">
+          <div className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full border transition-all ${
+            isListening 
+              ? 'bg-rose-950/40 border-rose-500 shadow-lg shadow-rose-500/20' 
+              : 'bg-[#252525] border-zinc-700/80 focus-within:border-amber-400'
+          }`}>
+            
+            {/* Input AI Teks */}
             <input
               type="text"
-              placeholder="Atau ketik kategori lain..."
-              value={customCategory}
+              placeholder={isListening ? 'Mendengarkan suara Anda...' : 'Untuk apa dan berapa harganya?'}
+              value={aiText}
               onChange={(e) => {
-                setCustomCategory(e.target.value);
-                setCategory('');
+                setAiText(e.target.value);
+                handleApplyAiText(e.target.value);
               }}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleApplyAiText(aiText);
+                }
+              }}
+              className="flex-1 bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none"
             />
-          </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-              Keterangan / Catatan
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Contoh: Iuran WiFi Pak Budi, Beli LCD Asus..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            {/* Tombol Mikrofon (Voice Input) */}
+            <button
+              type="button"
+              onClick={toggleVoiceInput}
+              className={`p-1.5 rounded-full transition ${
+                isListening 
+                  ? 'bg-rose-600 text-white animate-pulse' 
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-700'
+              }`}
+              title="Bicara dengan suara (contoh: 'Beli bensin 30rb')"
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </button>
+
+            {/* Tombol Foto Struk Belanja */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`p-1.5 rounded-full transition ${
+                uploading 
+                  ? 'text-amber-400 animate-spin' 
+                  : receiptUrl 
+                  ? 'text-emerald-400 bg-emerald-950/50' 
+                  : 'text-zinc-400 hover:text-white hover:bg-zinc-700'
+              }`}
+              title="Ambil foto struk belanja"
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+
+            {/* Hidden Input File Kamera */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileUpload}
+              className="hidden"
             />
+
+            {/* Tombol Terapkan / Bersihkan */}
+            {aiText ? (
+              <button
+                type="button"
+                onClick={() => handleApplyAiText(aiText)}
+                className="p-1.5 text-amber-400 hover:text-amber-300 rounded-full"
+                title="Terapkan"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : null}
+
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Tanggal Transaksi
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Foto Struk / Nota (Opsional)
-              </label>
-              <div className="flex items-center gap-2">
-                <label className="cursor-pointer flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 rounded-xl text-xs text-slate-600 transition">
-                  <Camera className="w-4 h-4 text-slate-500" />
-                  <span>{uploading ? 'Mengunggah...' : receiptUrl ? 'Ganti Foto' : 'Ambil Foto Struk'}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    disabled={uploading}
-                  />
-                </label>
-                {receiptUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setReceiptUrl('')}
-                    className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg text-xs"
-                    title="Hapus Foto"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              {receiptUrl && (
-                <p className="text-[10px] text-emerald-600 mt-1 flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Foto tersimpan di Supabase
-                </p>
-              )}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || uploading}
-            className={`w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm shadow-lg transition active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 ${
-              type === 'INCOME'
-                ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
-                : 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/30'
-            }`}
-          >
-            {loading ? (
-              <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-            ) : (
-              <span>Simpan Catatan</span>
-            )}
-          </button>
-        </form>
       </div>
     </div>
   );
