@@ -40,10 +40,10 @@ export default function BottomNav({
         <div className="flex-1 flex justify-center -mt-6">
           <button
             onClick={onAddNew}
-            className={`w-14 h-14 rounded-full bg-gradient-to-tr ${fabBg} text-white shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border-4 border-white`}
+            className={`w-14 h-14 rounded-full bg-gradient-to-tr ${fabBg} ${currentTheme?.fabTextColor || 'text-white'} shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border-4 ${currentTheme?.fabBorder || 'border-white'}`}
             title="Tambah Catatan Transaksi"
           >
-            <Plus className="w-8 h-8 stroke-[3]" />
+            <Plus className={`w-8 h-8 stroke-[3.5] ${currentTheme?.fabTextColor || 'text-white'}`} />
           </button>
         </div>
 

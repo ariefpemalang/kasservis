@@ -243,8 +243,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center">
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col">
+    <div className={`min-h-screen ${currentTheme?.isDark ? 'bg-black' : 'bg-slate-100'} flex justify-center`}>
+      <div className={`w-full max-w-md ${currentTheme?.isDark ? 'bg-[#121212]' : 'bg-white'} min-h-screen shadow-2xl relative flex flex-col`}>
         <HeaderCard
           currentBook={currentBook}
           setCurrentBook={setCurrentBook}
@@ -271,6 +271,7 @@ export default function App() {
           search={search}
           setSearch={setSearch}
           searchVisible={searchVisible}
+          currentTheme={currentTheme}
         />
 
         <BottomNav
