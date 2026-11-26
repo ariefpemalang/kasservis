@@ -1,44 +1,79 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
 import { 
+  ClipboardList, 
+  PieChart, 
   Plus, 
-  Minus, 
-  Wifi, 
-  Wrench, 
-  Layers, 
-  User, 
-  FileText 
+  FileSpreadsheet, 
+  Settings 
 } from 'lucide-react';
 
 export default function BottomNav({ 
-  currentBook, 
-  setCurrentBook, 
-  onAddIncome, 
-  onAddExpense, 
-  onOpenReport 
+  activeTab = 'RIWAYAT',
+  setActiveTab,
+  onAddNew, 
+  onOpenReport, 
+  onOpenCategoryReport,
+  onOpenSettings
 }) {
-  const { isOwner, isKasir, isTeknisi } = useAuth();
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2.5 shadow-2xl safe-area-bottom">
-      <div className="max-w-md mx-auto flex items-center justify-between gap-3">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-2 py-1 shadow-2xl safe-area-bottom">
+      <div className="max-w-md mx-auto flex items-center justify-around relative">
         
-        {/* Tombol Cepat Pemasukan [+] Hijau */}
+        {/* Tab 1: Riwayat */}
         <button
-          onClick={onAddIncome}
-          className="flex-1 py-3 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-1.5 transition"
+          onClick={() => {
+            if (setActiveTab) setActiveTab('RIWAYAT');
+          }}
+          className={`flex-1 py-1.5 flex flex-col items-center justify-center transition ${
+            activeTab === 'RIWAYAT' ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-slate-700'
+          }`}
         >
-          <Plus className="w-5 h-5 stroke-[2.5]" />
-          <span>Pemasukan</span>
+          <ClipboardList className="w-5 h-5 stroke-[2]" />
+          <span className="text-[10px] mt-0.5">Riwayat</span>
         </button>
 
-        {/* Tombol Cepat Pengeluaran [-] Merah */}
+        {/* Tab 2: Grafik */}
         <button
-          onClick={onAddExpense}
-          className="flex-1 py-3 px-3 bg-rose-600 hover:bg-rose-700 active:scale-[0.97] text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-1.5 transition"
+          onClick={() => {
+            if (onOpenCategoryReport) onOpenCategoryReport();
+          }}
+          className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 transition"
         >
-          <Minus className="w-5 h-5 stroke-[2.5]" />
-          <span>Pengeluaran</span>
+          <PieChart className="w-5 h-5 stroke-[2]" />
+          <span className="text-[10px] mt-0.5">Grafik</span>
+        </button>
+
+        {/* Tab 3: Center Elevated Floating [+] Button */}
+        <div className="flex-1 flex justify-center -mt-6">
+          <button
+            onClick={onAddNew}
+            className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-sky-500 text-white shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border-4 border-white"
+            title="Tambah Catatan Transaksi"
+          >
+            <Plus className="w-8 h-8 stroke-[3]" />
+          </button>
+        </div>
+
+        {/* Tab 4: Laporan */}
+        <button
+          onClick={() => {
+            if (onOpenReport) onOpenReport();
+          }}
+          className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 transition"
+        >
+          <FileSpreadsheet className="w-5 h-5 stroke-[2]" />
+          <span className="text-[10px] mt-0.5">Laporan</span>
+        </button>
+
+        {/* Tab 5: Pengaturan */}
+        <button
+          onClick={() => {
+            if (onOpenSettings) onOpenSettings();
+          }}
+          className="flex-1 py-1.5 flex flex-col items-center justify-center text-slate-500 hover:text-blue-600 transition"
+        >
+          <Settings className="w-5 h-5 stroke-[2]" />
+          <span className="text-[10px] mt-0.5">Pengaturan</span>
         </button>
 
       </div>

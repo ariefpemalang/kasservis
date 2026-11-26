@@ -17,10 +17,29 @@ export default function App() {
   const [configModalOpen, setConfigModalOpen] = useState(!isSupabaseConfigured());
   const [currentBook, setCurrentBook] = useState('ALL');
 
-  const [filterType, setFilterType] = useState('ALL'); // ALL, INCOME, EXPENSE
-  const [search, setSearch] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [bottomNavTab, setBottomNavTab] = useState('RIWAYAT');
+
+  // Mengatur startDate & endDate otomatis berdasarkan bulan yang dipilih
+  const handleChangeMonth = (year, month) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+    const lastDay = new Date(year, month, 0).getDate();
+    setStartDate(`${year}-${String(month).padStart(2, '0')}-01`);
+    setEndDate(`${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`);
+  };
+
+  // Set rentang tanggal bulan berjalan saat pertama load
+  useEffect(() => {
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const lastDay = new Date(y, m, 0).getDate();
+    setStartDate(`${y}-${String(m).padStart(2, '0')}-01`);
+    setEndDate(`${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`);
+  }, []);
 
   const [transactions, setTransactions] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -215,6 +234,11 @@ export default function App() {
           setCurrentBook={setCurrentBook}
           summary={summary}
           realtimeConnected={realtimeConnected}
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          onChangeMonth={handleChangeMonth}
+          searchVisible={searchVisible}
+          setSearchVisible={setSearchVisible}
           onOpenReport={() => setReportOpen(true)}
           onOpenUserMgmt={() => setUserMgmtOpen(true)}
           onOpenConfig={() => setConfigModalOpen(true)}
@@ -226,22 +250,22 @@ export default function App() {
           loading={loading}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          filterType={filterType}
-          setFilterType={setFilterType}
           search={search}
           setSearch={setSearch}
-          startDate={startDate}
-          setStartDate={setStartDate}
-          endDate={endDate}
-          setEndDate={setEndDate}
+          searchVisible={searchVisible}
         />
 
         <BottomNav
-          currentBook={currentBook}
-          setCurrentBook={setCurrentBook}
-          onAddIncome={handleAddIncome}
-          onAddExpense={handleAddExpense}
+          activeTab={bottomNavTab}
+          setActiveTab={setBottomNavTab}
+          onAddNew={() => {
+            setEditingTx(null);
+            setModalType('INCOME');
+            setTxModalOpen(true);
+          }}
           onOpenReport={() => setReportOpen(true)}
+          onOpenCategoryReport={() => setReportOpen(true)}
+          onOpenSettings={() => setCategoryModalOpen(true)}
         />
 
         <TransactionModal
