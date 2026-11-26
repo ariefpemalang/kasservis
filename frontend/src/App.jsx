@@ -285,7 +285,13 @@ export default function App() {
           }}
           onOpenReport={() => setReportOpen(true)}
           onOpenCategoryReport={() => setReportOpen(true)}
-          onOpenSettings={() => setCategoryModalOpen(true)}
+          onOpenSettings={() => {
+            if (isOwner) {
+              setCategoryModalOpen(true);
+            } else {
+              alert('Hanya Superadmin / Owner yang memiliki izin untuk mengelola kategori.');
+            }
+          }}
         />
 
         <TransactionModal

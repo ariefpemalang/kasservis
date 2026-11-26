@@ -305,13 +305,16 @@ export default function HeaderCard({
                     </button>
                   )}
 
-                  <button
-                    onClick={() => { onOpenCategories(); setDrawerOpen(false); }}
-                    className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <Tag className="w-4 h-4 text-emerald-600" />
-                    <span>Kelola Kategori</span>
-                  </button>
+                  {/* Hanya Superadmin (Owner) yang bisa kelola kategori */}
+                  {isOwner && (
+                    <button
+                      onClick={() => { onOpenCategories(); setDrawerOpen(false); }}
+                      className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <Tag className="w-4 h-4 text-emerald-600" />
+                      <span>Kelola Kategori</span>
+                    </button>
+                  )}
 
                   {isOwner && (
                     <button

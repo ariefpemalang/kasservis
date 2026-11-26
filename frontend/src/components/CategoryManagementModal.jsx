@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
   getStoredCategories, 
   addCategory, 
@@ -18,12 +19,13 @@ import {
 } from 'lucide-react';
 
 export default function CategoryManagementModal({ isOpen, onClose, onCategoriesChanged }) {
+  const { isOwner } = useAuth();
   const [categories, setCategories] = useState(getStoredCategories());
   const [selectedBook, setSelectedBook] = useState('WIFI');
   const [selectedType, setSelectedType] = useState('INCOME');
   const [newCatName, setNewCatName] = useState('');
 
-  if (!isOpen) return null;
+  if (!isOpen || !isOwner) return null;
 
   const handleAdd = (e) => {
     e.preventDefault();
