@@ -10,6 +10,8 @@ import ReportModal from './components/ReportModal';
 import CategoryManagementModal from './components/CategoryManagementModal';
 import BottomNav from './components/BottomNav';
 import SupabaseSetupModal from './components/SupabaseSetupModal';
+import ThemeModal from './components/ThemeModal';
+import { getCurrentTheme, getStoredPribadiTheme, savePribadiTheme } from './utils/theme';
 
 export default function App() {
   const { user, profile, loading: authLoading, isOwner, isKasir, isTeknisi } = useAuth();
@@ -22,6 +24,15 @@ export default function App() {
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [searchVisible, setSearchVisible] = useState(false);
   const [bottomNavTab, setBottomNavTab] = useState('RIWAYAT');
+  const [pribadiTheme, setPribadiTheme] = useState(getStoredPribadiTheme());
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
+
+  const currentTheme = getCurrentTheme(currentBook, pribadiTheme);
+
+  const handleSelectPribadiTheme = (themeId) => {
+    setPribadiTheme(themeId);
+    savePribadiTheme(themeId);
+  };
 
   const [filterType, setFilterType] = useState('ALL'); // ALL, INCOME, EXPENSE
   const [search, setSearch] = useState('');
@@ -237,6 +248,7 @@ export default function App() {
         <HeaderCard
           currentBook={currentBook}
           setCurrentBook={setCurrentBook}
+          currentTheme={currentTheme}
           summary={summary}
           realtimeConnected={realtimeConnected}
           selectedYear={selectedYear}
@@ -248,6 +260,7 @@ export default function App() {
           onOpenUserMgmt={() => setUserMgmtOpen(true)}
           onOpenConfig={() => setConfigModalOpen(true)}
           onOpenCategories={() => setCategoryModalOpen(true)}
+          onOpenThemeModal={() => setThemeModalOpen(true)}
         />
 
         <TransactionList
@@ -263,6 +276,7 @@ export default function App() {
         <BottomNav
           activeTab={bottomNavTab}
           setActiveTab={setBottomNavTab}
+          currentTheme={currentTheme}
           onAddNew={() => {
             setEditingTx(null);
             setModalType('INCOME');
@@ -298,6 +312,13 @@ export default function App() {
         <CategoryManagementModal
           isOpen={categoryModalOpen}
           onClose={() => setCategoryModalOpen(false)}
+        />
+
+        <ThemeModal
+          isOpen={themeModalOpen}
+          onClose={() => setThemeModalOpen(false)}
+          selectedTheme={pribadiTheme}
+          onSelectTheme={handleSelectPribadiTheme}
         />
 
         <SupabaseSetupModal

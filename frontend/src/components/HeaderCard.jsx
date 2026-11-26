@@ -15,7 +15,8 @@ import {
   Tag, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Palette
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -26,6 +27,7 @@ const MONTH_NAMES = [
 export default function HeaderCard({ 
   currentBook, 
   setCurrentBook, 
+  currentTheme,
   summary, 
   realtimeConnected,
   selectedYear,
@@ -36,7 +38,8 @@ export default function HeaderCard({
   onOpenReport, 
   onOpenUserMgmt,
   onOpenConfig,
-  onOpenCategories
+  onOpenCategories,
+  onOpenThemeModal
 }) {
   const { profile, logout, isOwner, isKasir, isTeknisi } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -74,7 +77,7 @@ export default function HeaderCard({
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 via-sky-600 to-blue-500 text-white shadow-md">
+    <div className={`bg-gradient-to-r ${currentTheme?.headerGradient || 'from-blue-600 via-sky-600 to-blue-500'} text-white shadow-md transition-all duration-300`}>
       
       {/* Top Bar: Hamburger Menu, Title, Icons */}
       <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
@@ -93,6 +96,17 @@ export default function HeaderCard({
         </div>
 
         <div className="flex items-center gap-1">
+          {/* Tombol Pemilih Tema (Khusus Buku Kas Pribadi) */}
+          {currentBook === 'PRIBADI' && (
+            <button
+              onClick={onOpenThemeModal}
+              className="p-2 rounded-full hover:bg-white/15 text-white/90 transition"
+              title="Ganti Tema Warna Pribadi"
+            >
+              <Palette className="w-5 h-5" />
+            </button>
+          )}
+
           {/* Tombol Toggle Pencarian */}
           <button 
             onClick={() => setSearchVisible(!searchVisible)}
@@ -280,6 +294,17 @@ export default function HeaderCard({
               <div>
                 <p className="font-bold text-slate-400 text-[10px] uppercase tracking-wider mb-2">Pengaturan & Fitur</p>
                 <div className="space-y-1">
+                  {/* Pilihan Tema Pribadi jika di Buku Pribadi */}
+                  {currentBook === 'PRIBADI' && (
+                    <button
+                      onClick={() => { onOpenThemeModal(); setDrawerOpen(false); }}
+                      className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <Palette className="w-4 h-4 text-purple-600" />
+                      <span>Ganti Tema Warna Pribadi</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => { onOpenCategories(); setDrawerOpen(false); }}
                     className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"
