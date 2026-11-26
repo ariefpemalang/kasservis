@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabaseClient';
-import SupabaseSetupModal from './SupabaseSetupModal';
-import { BookOpen, Lock, User, Wifi, Wrench, ShieldCheck, ArrowRight, Settings } from 'lucide-react';
+import { Lock, User, ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,8 +8,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [seeding, setSeeding] = useState(false);
-  const [configOpen, setConfigOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,63 +23,8 @@ export default function Login() {
     }
   };
 
-  const handleAutoCreateDefaultAccounts = async () => {
-    if (!supabase) return;
-    setSeeding(true);
-    setError('');
-
-    try {
-      const defaults = [
-        { email: 'admin@bukukas.local', password: 'admin123', name: 'Owner Superadmin', role: 'owner', username: 'admin' },
-        { email: 'kasir@bukukas.local', password: 'kasir123', name: 'Kasir WiFi', role: 'kasir_wifi', username: 'kasir' },
-        { email: 'teknisi@bukukas.local', password: 'teknisi123', name: 'Teknisi Servis', role: 'teknisi', username: 'teknisi' }
-      ];
-
-      for (const d of defaults) {
-        const { data: signUpData } = await supabase.auth.signUp({
-          email: d.email,
-          password: d.password,
-          options: {
-            data: { name: d.name, role: d.role, username: d.username }
-          }
-        });
-
-        if (signUpData?.user) {
-          await supabase.from('bukukas_profiles').upsert({
-            id: signUpData.user.id,
-            username: d.username,
-            name: d.name,
-            role: d.role
-          });
-        }
-      }
-
-      alert('Berhasil membuat akun bawaan: admin, kasir, dan teknisi! Silakan klik tombol akun untuk login.');
-    } catch (err) {
-      setError('Gagal membuat akun otomatis: ' + err.message);
-    } finally {
-      setSeeding(false);
-    }
-  };
-
-  const setPreset = (u, p) => {
-    setUsername(u);
-    setPassword(p);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-600 via-teal-700 to-slate-900 flex flex-col justify-center items-center px-4 py-8 relative">
-      {/* Tombol Pengaturan Supabase */}
-      <button
-        type="button"
-        onClick={() => setConfigOpen(true)}
-        className="absolute top-4 right-4 p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl backdrop-blur-md transition flex items-center gap-1.5 text-xs shadow-md cursor-pointer z-20"
-        title="Pengaturan URL & Key Supabase"
-      >
-        <Settings className="w-4 h-4" />
-        <span className="hidden sm:inline">Koneksi Supabase</span>
-      </button>
-
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-white/20">
         <div className="text-center mb-6">
           <img 
@@ -114,7 +55,7 @@ export default function Login() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Contoh: admin / kasir / teknisi"
+                placeholder="Masukkan username"
                 className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
               />
             </div>
@@ -152,65 +93,11 @@ export default function Login() {
             )}
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-slate-100">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center mb-3">
-            Akun Login Cepat (Klik untuk coba):
-          </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setPreset('admin', 'admin123')}
-              className="p-2.5 bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
-            >
-              <ShieldCheck className="w-5 h-5 text-emerald-600 mb-1" />
-              <span className="text-[11px] font-bold text-slate-800">Owner</span>
-              <span className="text-[9px] text-slate-400">admin123</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPreset('kasir', 'kasir123')}
-              className="p-2.5 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
-            >
-              <Wifi className="w-5 h-5 text-blue-600 mb-1" />
-              <span className="text-[11px] font-bold text-slate-800">Kasir</span>
-              <span className="text-[9px] text-slate-400">kasir123</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPreset('teknisi', 'teknisi123')}
-              className="p-2.5 bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl flex flex-col items-center transition text-center cursor-pointer"
-            >
-              <Wrench className="w-5 h-5 text-amber-600 mb-1" />
-              <span className="text-[11px] font-bold text-slate-800">Teknisi</span>
-              <span className="text-[9px] text-slate-400">teknisi123</span>
-            </button>
-          </div>
-
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={handleAutoCreateDefaultAccounts}
-              disabled={seeding}
-              className="text-[11px] text-emerald-600 hover:underline font-medium cursor-pointer"
-            >
-              {seeding ? 'Membuat akun bawaan...' : 'Akun belum ada di Supabase? Buat Akun Bawaan Otomatis'}
-            </button>
-          </div>
-        </div>
       </div>
       
       <p className="text-[11px] text-emerald-100/70 mt-6 text-center">
-        Buku Kas Realtime • Supabase Database
+        SaldoKu • Catatan Keuangan Realtime
       </p>
-
-      {/* Modal Pengaturan Supabase */}
-      <SupabaseSetupModal
-        isOpen={configOpen}
-        onClose={() => setConfigOpen(false)}
-      />
     </div>
   );
 }
