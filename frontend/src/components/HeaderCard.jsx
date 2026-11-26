@@ -232,16 +232,26 @@ export default function HeaderCard({
           <div className="relative w-72 max-w-[85vw] bg-white text-slate-800 h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
             
             {/* Header Drawer */}
-            <div className={`p-4 ${currentBook === 'WIFI' ? 'bg-gradient-to-r from-pink-600 via-rose-500 to-pink-500' : (currentTheme?.headerGradient || 'from-blue-600 to-sky-600')} text-white`}>
+            <div className={`p-4 ${
+              currentBook === 'WIFI'
+                ? 'bg-gradient-to-r from-pink-600 via-rose-500 to-pink-500'
+                : currentBook === 'SERVIS'
+                ? 'bg-gradient-to-r from-blue-600 via-sky-600 to-blue-500'
+                : `bg-gradient-to-r ${currentTheme?.headerGradient || 'from-purple-600 to-indigo-600'}`
+            } text-white shadow-sm`}>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs uppercase font-bold tracking-wider text-white/80">Buku Kas & Servis</span>
-                <button onClick={() => setDrawerOpen(false)} className="p-1 hover:bg-white/20 rounded-full">
+                <span className={`text-xs uppercase font-bold tracking-wider ${
+                  currentBook === 'WIFI' ? 'text-pink-200' : currentBook === 'SERVIS' ? 'text-sky-200' : 'text-white/80'
+                }`}>
+                  Buku Kas & Servis
+                </span>
+                <button onClick={() => setDrawerOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition active:scale-95">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center font-bold text-base text-white border border-white/30">
+                <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center font-bold text-base text-white border border-white/30 shadow-xs">
                   {profile?.name?.charAt(0) || 'U'}
                 </div>
                 <div>
@@ -264,30 +274,30 @@ export default function HeaderCard({
                     <button
                       onClick={() => { setCurrentBook('SERVIS'); setDrawerOpen(false); }}
                       className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'SERVIS' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'hover:bg-slate-50 text-slate-700'
+                        currentBook === 'SERVIS' ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <Wrench className="w-4 h-4 text-amber-500" />
+                      <Wrench className={`w-4 h-4 ${currentBook === 'SERVIS' ? 'text-blue-600' : 'text-slate-500'}`} />
                       <span>Buku Servis (SERVICE)</span>
                     </button>
 
                     <button
                       onClick={() => { setCurrentBook('WIFI'); setDrawerOpen(false); }}
                       className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'WIFI' ? 'bg-pink-50 text-pink-700 border border-pink-200' : 'hover:bg-slate-50 text-slate-700'
+                        currentBook === 'WIFI' ? 'bg-pink-50 text-pink-700 border border-pink-200 shadow-xs' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <Wifi className="w-4 h-4 text-pink-500" />
+                      <Wifi className={`w-4 h-4 ${currentBook === 'WIFI' ? 'text-pink-600' : 'text-slate-500'}`} />
                       <span>Buku Kas WiFi</span>
                     </button>
 
                     <button
                       onClick={() => { setCurrentBook('PRIBADI'); setDrawerOpen(false); }}
                       className={`w-full p-2.5 rounded-xl font-bold flex items-center gap-2.5 transition ${
-                        currentBook === 'PRIBADI' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'hover:bg-slate-50 text-slate-700'
+                        currentBook === 'PRIBADI' ? 'bg-purple-50 text-purple-700 border border-purple-200 shadow-xs' : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <User className="w-4 h-4 text-purple-500" />
+                      <User className={`w-4 h-4 ${currentBook === 'PRIBADI' ? 'text-purple-600' : 'text-slate-500'}`} />
                       <span>Buku Kas Pribadi</span>
                     </button>
                   </div>
