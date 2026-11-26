@@ -305,8 +305,8 @@ export default function HeaderCard({
                     </button>
                   )}
 
-                  {/* Hanya Superadmin (Owner) yang bisa kelola kategori */}
-                  {isOwner && (
+                  {/* Hanya Superadmin (Owner) yang bisa kelola kategori (Hanya di Buku Pribadi) */}
+                  {isOwner && currentBook === 'PRIBADI' && (
                     <button
                       onClick={() => { onOpenCategories(); setDrawerOpen(false); }}
                       className="w-full p-2.5 rounded-xl font-medium flex items-center gap-2.5 hover:bg-slate-50 text-slate-700 transition"

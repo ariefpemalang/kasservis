@@ -277,6 +277,7 @@ export default function App() {
         <BottomNav
           activeTab={bottomNavTab}
           setActiveTab={setBottomNavTab}
+          currentBook={currentBook}
           currentTheme={currentTheme}
           onAddNew={() => {
             setEditingTx(null);
