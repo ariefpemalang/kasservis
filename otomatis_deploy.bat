@@ -28,8 +28,9 @@ if "%commit_msg%"=="" set commit_msg=Auto update aplikasi dan aset
 
 git commit -m "%commit_msg%"
 
-echo [4/4] Mengunggah (Push) ke GitHub...
+echo [4/4] Mengunggah (Push) ke GitHub (main & master)...
 git push origin main
+git push origin main:master
 if %errorlevel% neq 0 (
     echo [ERROR] Gagal push ke GitHub! Periksa koneksi internet Anda.
     pause
