@@ -96,7 +96,11 @@ export default function TransactionModal({
       setDate(editingTx.date ? editingTx.date.slice(0, 10) : new Date().toISOString().slice(0, 10));
       setReceiptUrl(editingTx.receipt_url || '');
     } else {
-      setType(initialType);
+      if (currentBook === 'PRIBADI') {
+        setType('EXPENSE');
+      } else {
+        setType(initialType);
+      }
       if (isKasir) setBook('WIFI');
       else if (isTeknisi) setBook('SERVIS');
       else setBook(currentBook === 'ALL' ? 'SERVIS' : currentBook);
@@ -229,7 +233,8 @@ export default function TransactionModal({
     const targetText = inputStr || aiText;
     if (!targetText.trim()) return;
 
-    const parsed = parseSmartInput(targetText, activeCategories);
+    const bookCats = allCategories[book] || allCategories;
+    const parsed = parseSmartInput(targetText, bookCats, book);
     if (parsed) {
       if (parsed.amount > 0) {
         setAmount(parsed.amount.toString());
@@ -253,7 +258,8 @@ export default function TransactionModal({
     if (loading) return;
 
     setError('');
-    const parsed = parseSmartInput(targetText, activeCategories);
+    const bookCats = allCategories[book] || allCategories;
+    const parsed = parseSmartInput(targetText, bookCats, book);
 
     let finalAmount = parsed?.amount || parseFloat(amount.replace(/[^0-9]/g, '')) || 0;
     if (!finalAmount || finalAmount <= 0) {
@@ -266,8 +272,9 @@ export default function TransactionModal({
 
     let finalCategory = parsed?.category || category;
     if (!finalCategory) {
-      if (activeCategories.length > 0) {
-        finalCategory = activeCategories[0];
+      const targetCats = (bookCats && bookCats[finalType]) ? bookCats[finalType] : activeCategories;
+      if (targetCats && targetCats.length > 0) {
+        finalCategory = targetCats[0];
       } else {
         finalCategory = finalType === 'INCOME' ? 'Gaji' : 'Tidak Tercatat';
       }
@@ -472,7 +479,11 @@ export default function TransactionModal({
             type="button"
             onClick={handleSubmit}
             disabled={loading || uploading}
-            className="text-sm font-bold text-slate-900 hover:text-black disabled:opacity-50 transition"
+            className={`text-sm font-bold px-3 py-1 rounded-lg text-white transition shadow-sm ${
+              type === 'EXPENSE' 
+                ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-600/20' 
+                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+            } disabled:opacity-50`}
           >
             {loading ? 'Menyimpan...' : 'Simpan'}
           </button>
@@ -485,7 +496,9 @@ export default function TransactionModal({
               type="button"
               onClick={() => setType('EXPENSE')}
               className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
-                type === 'EXPENSE' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                type === 'EXPENSE' 
+                  ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30' 
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               Pengeluaran
@@ -494,7 +507,9 @@ export default function TransactionModal({
               type="button"
               onClick={() => setType('INCOME')}
               className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition ${
-                type === 'INCOME' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'
+                type === 'INCOME' 
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30' 
+                  : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               Pemasukan
@@ -505,7 +520,7 @@ export default function TransactionModal({
         {/* INPUT NOMINAL BESAR */}
         <div className="px-4 pt-4 pb-2 text-center">
           <div className="inline-flex items-baseline gap-1">
-            <span className="text-lg font-bold text-slate-400">Rp</span>
+            <span className={`text-lg font-bold ${type === 'EXPENSE' ? 'text-rose-500' : 'text-emerald-500'}`}>Rp</span>
             <input
               type="text"
               inputMode="numeric"
@@ -513,13 +528,15 @@ export default function TransactionModal({
               placeholder="0"
               value={amount ? Number(amount.replace(/[^0-9]/g, '')).toLocaleString('id-ID') : ''}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))}
-              className="text-3xl font-extrabold font-mono bg-transparent text-slate-900 focus:outline-none text-center max-w-[240px] tracking-tight placeholder-slate-300"
+              className={`text-3xl font-extrabold font-mono bg-transparent ${
+                type === 'EXPENSE' ? 'text-rose-600' : 'text-emerald-600'
+              } focus:outline-none text-center max-w-[240px] tracking-tight placeholder-slate-300`}
             />
           </div>
 
           {/* Sub info ringkas (Kategori terpilih / Catatan) */}
           <div className="flex items-center justify-center gap-2 mt-1.5 text-[11px] text-slate-500">
-            <span className={category ? `${themeStyles.textAccent} font-semibold` : 'text-slate-400'}>
+            <span className={category ? (type === 'EXPENSE' ? 'text-rose-600 font-semibold' : 'text-emerald-600 font-semibold') : 'text-slate-400'}>
               {category ? `Kategori: ${category}` : 'Pilih kategori di bawah'}
             </span>
             {notes && <span>• {notes}</span>}
@@ -549,13 +566,13 @@ export default function TransactionModal({
                 >
                   <div className={`w-13 h-13 rounded-full flex items-center justify-center transition border ${
                     isSelected 
-                      ? themeStyles.badgeActive 
+                      ? (type === 'EXPENSE' ? 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-600/25' : 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/25') 
                       : 'bg-slate-100 text-slate-700 border-slate-200/90 group-hover:bg-slate-200/80 group-hover:border-slate-300'
                   }`}>
                     {getCatIcon(cat)}
                   </div>
                   <span className={`text-[11px] text-center line-clamp-1 max-w-[70px] ${
-                    isSelected ? `${themeStyles.textAccent} font-bold` : 'text-slate-600 font-medium'
+                    isSelected ? (type === 'EXPENSE' ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold') : 'text-slate-600 font-medium'
                   }`}>
                     {cat}
                   </span>
@@ -638,7 +655,9 @@ export default function TransactionModal({
                 type="button"
                 onClick={() => handleAiDirectSave(aiText)}
                 disabled={loading}
-                className={`p-1.5 ${themeStyles.bgAccent} ${themeStyles.bgAccentHover} ${themeStyles.btnText} font-bold rounded-full transition-transform active:scale-95 shadow-md flex items-center justify-center`}
+                className={`p-1.5 ${
+                  type === 'EXPENSE' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-600 hover:bg-emerald-700'
+                } text-white font-bold rounded-full transition-transform active:scale-95 shadow-md flex items-center justify-center`}
                 title="Terapkan & Simpan Otomatis Langsung"
               >
                 {loading ? (

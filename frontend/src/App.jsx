@@ -316,7 +316,7 @@ export default function App() {
           currentTheme={currentTheme}
           onAddNew={() => {
             setEditingTx(null);
-            setModalType('INCOME');
+            setModalType(currentBook === 'PRIBADI' ? 'EXPENSE' : 'INCOME');
             setTxModalOpen(true);
           }}
           onOpenReport={() => setReportOpen(true)}
