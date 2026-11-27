@@ -14,7 +14,7 @@ import ThemeModal from './components/ThemeModal';
 import CalendarModal from './components/CalendarModal';
 import { getCurrentTheme, getStoredPribadiTheme, savePribadiTheme } from './utils/theme';
 import { getStoredFontSize, applyFontSize } from './utils/fontSize';
-import { fetchRemoteCategories } from './utils/categories';
+import { initCategoryRealtime, fetchRemoteCategories } from './utils/categories';
 
 export default function App() {
   const { user, profile, loading: authLoading, isOwner, isKasir, isTeknisi } = useAuth();
@@ -215,37 +215,10 @@ export default function App() {
     };
   }, [user, fetchData]);
 
-  // Sinkronisasi Kategori Realtime dari Supabase (Antara HP, PC, & seluruh perangkat)
+  // Sinkronisasi Kategori Realtime Ringan (WebSocket Broadcast + Database + Smart Auto-Sync)
   useEffect(() => {
-    if (!supabase || !user) return;
-
-    // Ambil data kategori terbaru saat awal aplikasi dibuka
-    fetchRemoteCategories();
-
-    // Dengarkan perubahan kategori secara realtime saat ada penambahan/penghapusan dari PC/HP
-    const catChannel = supabase
-      .channel('realtime:bukukas_categories')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'settings',
-          filter: 'id=eq.bukukas_categories'
-        },
-        (payload) => {
-          if (payload.new && payload.new.data) {
-            localStorage.setItem('bukukas_custom_categories', JSON.stringify(payload.new.data));
-            window.dispatchEvent(new CustomEvent('bukukas:categories_changed', { detail: payload.new.data }));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(catChannel);
-    };
-  }, [user]);
+    initCategoryRealtime();
+  }, []);
 
   const handleAddIncome = () => {
     setEditingTx(null);

@@ -43,3 +43,12 @@ export const supabase = createClient(url, key, {
     }
   }
 });
+
+// Client tanpa autentikasi JWT pengguna untuk membaca & menulis pengaturan global / kategori
+// Menghindari penolakan RLS (42501) saat pengguna terautentikasi mengakses tabel settings
+export const supabaseUnauth = createClient(url, key, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
