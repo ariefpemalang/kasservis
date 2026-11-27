@@ -42,6 +42,7 @@ export default function TransactionModal({
 }) {
   const { user, profile, isOwner, isKasir, isTeknisi } = useAuth();
   const fileInputRef = useRef(null);
+  const aiInputRef = useRef(null);
 
   const [type, setType] = useState(initialType);
   const [book, setBook] = useState(currentBook === 'ALL' ? 'SERVIS' : currentBook);
@@ -123,12 +124,22 @@ export default function TransactionModal({
   useEffect(() => {
     if (isOpen) {
       setAllCategories(getStoredCategories());
+      // Otomatis fokuskan kursor ke Bilah AI saat modal dibuka
+      const timer = setTimeout(() => {
+        if (aiInputRef.current) {
+          aiInputRef.current.focus();
+        }
+      }, 120);
+      return () => clearTimeout(timer);
     }
+  }, [isOpen]);
+
+  useEffect(() => {
     const unsubscribe = subscribeToCategories((newCats) => {
       setAllCategories({ ...newCats });
     });
     return unsubscribe;
-  }, [isOpen]);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -497,7 +508,8 @@ export default function TransactionModal({
             <span className="text-lg font-bold text-slate-400">Rp</span>
             <input
               type="text"
-              autoFocus
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="0"
               value={amount ? Number(amount.replace(/[^0-9]/g, '')).toLocaleString('id-ID') : ''}
               onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))}
@@ -563,6 +575,7 @@ export default function TransactionModal({
             
             {/* Input AI Teks */}
             <input
+              ref={aiInputRef}
               type="text"
               placeholder={isListening ? 'Mendengarkan suara Anda...' : 'Untuk apa dan berapa harganya?'}
               value={aiText}
